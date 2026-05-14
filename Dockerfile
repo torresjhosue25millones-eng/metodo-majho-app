@@ -3,8 +3,9 @@ FROM node:20-alpine AS frontend-build
 WORKDIR /frontend
 COPY frontend/package*.json ./
 RUN npm ci
+RUN chmod +x node_modules/.bin/vite
 COPY frontend/ ./
-RUN npx vite build
+RUN node_modules/.bin/vite build
 
 # Stage 2: Production image
 FROM node:20-alpine
