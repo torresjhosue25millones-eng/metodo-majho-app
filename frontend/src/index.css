@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  body {
+    background-color: #F5EFE0;
+    color: #2D2D2D;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F5EFE0;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #5C8A6E;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-rose-500 hover:bg-rose-600 text-white font-medium px-6 py-3 rounded-full transition-all duration-200 shadow-md hover:shadow-lg active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-white hover:bg-rose-50 text-rose-600 font-medium px-6 py-3 rounded-full border border-rose-200 transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply text-rose-500 hover:text-rose-700 font-medium transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-rose-100 p-6;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-md hover:border-rose-200 transition-all duration-200 cursor-pointer;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent bg-white text-deep-plum placeholder-rose-300 transition-all duration-200;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl text-deep-plum;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #5C8A6E, #7B5EA7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-spiritual {
+    background: linear-gradient(135deg, #F5EFE0 0%, #F0F5F2 100%);
+  }
+}
