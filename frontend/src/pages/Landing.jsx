@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+function LogoImg({ className = 'h-10 w-auto' }) {
+  const [failed, setFailed] = useState(false);
+  return failed
+    ? <span className="text-2xl">🌸</span>
+    : <img src="/assets/logo-majho.png" alt="Método MAJHO" className={className} onError={() => setFailed(true)} />;
+}
 
 const pillars = [
   { letter: 'M', title: 'Mindfulness', desc: 'Consciencia plena en cada momento con tu hijo/a', color: 'bg-rose-50 border-rose-200', accent: 'text-rose-600' },
@@ -31,7 +38,7 @@ export default function Landing() {
       <header className="bg-white border-b border-rose-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🌸</span>
+            <LogoImg className="h-10 w-auto" />
             <span className="font-serif font-bold text-deep-plum text-lg">Método MAJHO</span>
           </div>
           <div className="flex items-center gap-3">
@@ -147,8 +154,7 @@ export default function Landing() {
       <footer className="bg-deep-plum text-white py-8 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="text-2xl">🌿</span>
-            <span className="font-serif font-bold text-lg">Método MAJHO</span>
+            <LogoImg className="h-10 w-auto brightness-0 invert" />
           </div>
           <p className="text-rose-200 text-sm">Con amor para todas las mamás en su camino sagrado</p>
         </div>

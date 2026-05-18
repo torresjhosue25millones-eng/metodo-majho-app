@@ -2,6 +2,13 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 
+function LogoImg() {
+  const [failed, setFailed] = useState(false);
+  return failed
+    ? <span className="text-2xl">🌸</span>
+    : <img src="/assets/logo-majho.png" alt="Método MAJHO" className="h-10 w-auto" onError={() => setFailed(true)} />;
+}
+
 const navLinks = [
   { to: '/dashboard', label: 'Inicio', icon: '🏠' },
   { to: '/modulos', label: 'Módulos', icon: '📖' },
@@ -25,7 +32,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex items-center justify-between h-16">
           <Link to="/dashboard" className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-2xl">🌸</span>
+            <LogoImg />
             <span className="font-serif font-bold text-deep-plum text-lg hidden md:block">Método MAJHO</span>
           </Link>
 
