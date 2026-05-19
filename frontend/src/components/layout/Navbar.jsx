@@ -6,7 +6,7 @@ function LogoImg() {
   const [failed, setFailed] = useState(false);
   return failed
     ? <span className="text-2xl">🌸</span>
-    : <img src="/assets/logo-majho.png" alt="Método MAJHO" className="h-10 w-auto" onError={() => setFailed(true)} />;
+    : <img src="/assets/logo-majho.png" alt="Método MAJHO" style={{ height: 70, width: 'auto' }} onError={() => setFailed(true)} />;
 }
 
 const navLinks = [

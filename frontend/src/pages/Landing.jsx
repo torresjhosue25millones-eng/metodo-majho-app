@@ -3,11 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
-function LogoImg({ className = 'h-10 w-auto' }) {
+function LogoImg({ invert = false }) {
   const [failed, setFailed] = useState(false);
   return failed
     ? <span className="text-2xl">🌸</span>
-    : <img src="/assets/logo-majho.png" alt="Método MAJHO" className={className} onError={() => setFailed(true)} />;
+    : <img src="/assets/logo-majho.png" alt="Método MAJHO" style={{ height: 70, width: 'auto', filter: invert ? 'brightness(0) invert(1)' : 'none' }} onError={() => setFailed(true)} />;
 }
 
 const pillars = [
@@ -38,7 +38,7 @@ export default function Landing() {
       <header className="bg-white border-b border-rose-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <LogoImg className="h-10 w-auto" />
+            <LogoImg />
             <span className="font-serif font-bold text-deep-plum text-lg">Método MAJHO</span>
           </div>
           <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export default function Landing() {
       <footer className="bg-deep-plum text-white py-8 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <LogoImg className="h-10 w-auto brightness-0 invert" />
+            <LogoImg invert />
           </div>
           <p className="text-rose-200 text-sm">Con amor para todas las mamás en su camino sagrado</p>
         </div>
