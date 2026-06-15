@@ -41,7 +41,7 @@ export default function Login() {
   // ── Register state ─────────────────────────────────────────
   const [step, setStep] = useState(1);
   const [mama, setMama] = useState({ name: '', email: '', password: '' });
-  const [child, setChild] = useState({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_place: '' });
+  const [child, setChild] = useState({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_city: '', birth_country: '' });
   const [regError, setRegError] = useState('');
   const [regLoading, setRegLoading] = useState(false);
   const [emailExists, setEmailExists] = useState('');
@@ -92,18 +92,24 @@ export default function Login() {
     try {
       await register({ name: mama.name, email: mama.email, password: mama.password, children_count: child.name ? 1 : 0 });
       if (child.name) {
-        await api.post('/children', {
-          name: child.name,
-          age_stage: child.age_stage || null,
-          birth_date: child.birth_date || null,
-          birth_time: child.birth_time || null,
-          birth_place: child.birth_place || null,
-        });
+        const birthPlace = [child.birth_city, child.birth_country].filter(Boolean).join(', ') || null;
+        try {
+          await api.post('/children', {
+            name: child.name,
+            age_stage: child.age_stage || null,
+            birth_date: child.birth_date || null,
+            birth_time: child.birth_time || null,
+            birth_place: birthPlace,
+          });
+        } catch {
+          // Usuario ya registrado, continuar aunque falle el hijo
+        }
       }
       navigate('/dashboard');
     } catch (err) {
       const status = err.response?.status;
-      const msg = err.response?.data?.error || 'Error al crear la cuenta';
+      const msg = err.response?.data?.error
+        || (!err.response ? 'No se pudo conectar al servidor. Verifica que el servidor esté activo.' : 'Error al crear la cuenta');
       if (status === 409) {
         setEmailExists(mama.email);
         setRegError('Este email ya tiene una cuenta.');
@@ -323,10 +329,17 @@ export default function Login() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      Lugar de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                      Ciudad de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
                     </label>
-                    <input placeholder="Ej: Buenos Aires, Argentina" className="input-field"
-                      value={child.birth_place} onChange={e => setChild(c => ({ ...c, birth_place: e.target.value }))} />
+                    <input placeholder="Ej: Bogotá" className="input-field"
+                      value={child.birth_city} onChange={e => setChild(c => ({ ...c, birth_city: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                      País <span className="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <input placeholder="Ej: Colombia" className="input-field"
+                      value={child.birth_country} onChange={e => setChild(c => ({ ...c, birth_country: e.target.value }))} />
                   </div>
                   <div className="flex gap-3 pt-2">
                     <button type="button" onClick={() => setStep(2)} className="btn-secondary flex-1">← Atrás</button>
