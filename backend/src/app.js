@@ -12,6 +12,7 @@ const childrenRoutes = require('./routes/children');
 const questionnaireRoutes = require('./routes/questionnaire');
 const actionPlanRoutes = require('./routes/actionPlan');
 const emergencyRoutes = require('./routes/emergency');
+const webhookRoutes = require('./routes/webhook');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(cors({ origin: allowedOrigin, credentials: true }));
 
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
+app.use('/webhook', webhookRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/modules', moduleRoutes);
