@@ -91,6 +91,13 @@ function ChildCard({ child, onUpdate, onDelete }) {
                   {typeInfo.emoji} Niño/a {typeInfo.name}
                 </p>
               )}
+              {child.astral_chart?.solar && (
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {child.astral_chart.solar.emoji} {child.astral_chart.solar.sign}
+                  {child.astral_chart.lunar && ` · ${child.astral_chart.lunar.emoji} ${child.astral_chart.lunar.sign}`}
+                  {child.astral_chart.ascendant && ` · ↑${child.astral_chart.ascendant.emoji} ${child.astral_chart.ascendant.sign}`}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex gap-2">

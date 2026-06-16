@@ -30,7 +30,7 @@ export default function Dashboard() {
       api.get('/children'),
       api.get('/questionnaire/result').catch(() => ({ data: { result: null } })),
     ]).then(([modRes, affRes, meRes, childRes, vibRes]) => {
-      setModules(modRes.data.modules.slice(0, 3));
+      setModules(modRes.data.modules);
       setAffirmation(affRes.data.affirmation);
       setProgress(meRes.data.progress);
       setTotalLessons(meRes.data.totalLessons);
@@ -168,33 +168,98 @@ export default function Dashboard() {
           ))}
         </div>
 
+        {/* Carta Astral */}
+        {firstChild?.astral_chart && (
+          <div className="card mb-6 animate-fade-in">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xl">🌠</span>
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Carta Astral</p>
+                <p className="font-semibold text-deep-plum text-sm">{firstChild.name}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-rose-50 rounded-2xl p-3 text-center">
+                <p className="text-2xl mb-1">{firstChild.astral_chart.solar.emoji}</p>
+                <p className="text-xs text-gray-400 mb-0.5">Signo Solar</p>
+                <p className="font-semibold text-sm text-deep-plum">{firstChild.astral_chart.solar.sign}</p>
+                <p className="text-xs text-rose-400">{firstChild.astral_chart.solar.element}</p>
+              </div>
+              {firstChild.astral_chart.lunar && (
+                <div className="bg-plum-50 rounded-2xl p-3 text-center">
+                  <p className="text-2xl mb-1">{firstChild.astral_chart.lunar.emoji}</p>
+                  <p className="text-xs text-gray-400 mb-0.5">Luna</p>
+                  <p className="font-semibold text-sm text-deep-plum">{firstChild.astral_chart.lunar.sign}</p>
+                </div>
+              )}
+              {firstChild.astral_chart.ascendant ? (
+                <div className="bg-amber-50 rounded-2xl p-3 text-center">
+                  <p className="text-2xl mb-1">{firstChild.astral_chart.ascendant.emoji}</p>
+                  <p className="text-xs text-gray-400 mb-0.5">Ascendente</p>
+                  <p className="font-semibold text-sm text-deep-plum">{firstChild.astral_chart.ascendant.sign}</p>
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-2xl p-3 text-center flex flex-col items-center justify-center">
+                  <p className="text-xl mb-1">⏰</p>
+                  <p className="text-xs text-gray-400 leading-tight">Agrega la hora de nacimiento para el ascendente</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Continue modules */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-serif text-2xl text-deep-plum">Continúa tu camino</h2>
             <Link to="/modulos" className="btn-ghost text-sm">Ver todos →</Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {modules.map(m => (
-              <Link key={m.id} to={`/modulos/${m.id}`} className="card-hover group">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{m.icon}</span>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wide" style={{ color: m.color }}>
-                      {m.age_label}
+          {(() => {
+            if (!firstChild) {
+              return (
+                <div className="card border-dashed border-2 border-rose-200 text-center py-10">
+                  <span className="text-4xl mb-3 block">👶</span>
+                  <p className="text-gray-500 mb-4">Agrega el perfil de tu hijo/a para ver tu módulo recomendado</p>
+                  <Link to="/perfil" className="btn-primary py-2 px-6 text-sm inline-block">Agregar hijo/a →</Link>
+                </div>
+              );
+            }
+            const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
+            const stageKey = STAGE_MAP[firstChild.age_stage] || firstChild.age_stage;
+            const mod = modules.find(m => m.age_range === stageKey || m.age_range === firstChild.age_stage);
+            if (!mod) {
+              return (
+                <div className="card border-dashed border-2 border-rose-200 text-center py-8">
+                  <p className="text-gray-500 mb-3">Completa la etapa de vida de {firstChild.name} en tu perfil</p>
+                  <Link to="/perfil" className="text-sm text-rose-500 font-medium hover:text-rose-700">Ir al perfil →</Link>
+                </div>
+              );
+            }
+            return (
+              <Link to={`/modulos/${mod.id}`} className="card-hover group block">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
+                    style={{ backgroundColor: mod.color + '20' }}>
+                    {mod.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: mod.color }}>
+                      {mod.age_label}
                     </p>
-                    <h3 className="font-semibold text-deep-plum text-sm group-hover:text-rose-600 transition-colors">
-                      {m.title}
+                    <h3 className="font-serif text-xl text-deep-plum group-hover:text-rose-600 transition-colors mb-1">
+                      {mod.title}
                     </h3>
+                    <p className="text-sm text-gray-400 mb-3">{mod.subtitle}</p>
+                    <div className="bg-rose-100 rounded-full h-1.5 mb-1">
+                      <div className="h-1.5 rounded-full transition-all duration-700"
+                        style={{ width: `${mod.progress_pct}%`, backgroundColor: mod.color }} />
+                    </div>
+                    <p className="text-xs text-gray-400">{mod.completed_lessons}/{mod.lessons_count} lecciones</p>
                   </div>
                 </div>
-                <div className="bg-rose-100 rounded-full h-1.5 mb-1">
-                  <div className="h-1.5 rounded-full" style={{ width: `${m.progress_pct}%`, backgroundColor: m.color }} />
-                </div>
-                <p className="text-xs text-gray-400">{m.completed_lessons}/{m.lessons_count} lecciones</p>
               </Link>
-            ))}
-          </div>
+            );
+          })()}
         </div>
       </main>
       <Footer />

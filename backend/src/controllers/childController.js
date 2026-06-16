@@ -3,7 +3,7 @@ const { initDb, nextId } = require('../database/init');
 function getChildren(req, res) {
   const db = initDb();
   const children = db.get('children').filter({ user_id: req.userId }).value();
-  res.json({ children });
+  res.json({ children: children.map(enrichChild) });
 }
 
 function addChild(req, res) {
@@ -23,7 +23,7 @@ function addChild(req, res) {
     created_at: new Date().toISOString(),
   };
   db.get('children').push(child).write();
-  res.status(201).json({ child });
+  res.status(201).json({ child: enrichChild(child) });
 }
 
 function updateChild(req, res) {
@@ -44,7 +44,7 @@ function updateChild(req, res) {
   }).write();
 
   const updated = db.get('children').find({ id }).value();
-  res.json({ child: updated });
+  res.json({ child: enrichChild(updated) });
 }
 
 function deleteChild(req, res) {
@@ -67,6 +67,76 @@ function deriveAgeStage(birthDate) {
   if (months < 84) return '3-7';
   if (months < 156) return '8-12';
   return '13-18';
+}
+
+function getSolarSign(birthDate) {
+  if (!birthDate) return null;
+  const d = new Date(birthDate + 'T12:00:00Z');
+  const md = (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+  if (md >= 1222 || md <= 119) return { sign: 'Capricornio', emoji: '♑', element: 'Tierra' };
+  if (md <= 218) return { sign: 'Acuario', emoji: '♒', element: 'Aire' };
+  if (md <= 320) return { sign: 'Piscis', emoji: '♓', element: 'Agua' };
+  if (md <= 419) return { sign: 'Aries', emoji: '♈', element: 'Fuego' };
+  if (md <= 520) return { sign: 'Tauro', emoji: '♉', element: 'Tierra' };
+  if (md <= 620) return { sign: 'Géminis', emoji: '♊', element: 'Aire' };
+  if (md <= 722) return { sign: 'Cáncer', emoji: '♋', element: 'Agua' };
+  if (md <= 822) return { sign: 'Leo', emoji: '♌', element: 'Fuego' };
+  if (md <= 922) return { sign: 'Virgo', emoji: '♍', element: 'Tierra' };
+  if (md <= 1022) return { sign: 'Libra', emoji: '♎', element: 'Aire' };
+  if (md <= 1121) return { sign: 'Escorpio', emoji: '♏', element: 'Agua' };
+  return { sign: 'Sagitario', emoji: '♐', element: 'Fuego' };
+}
+
+function getLunarSign(birthDate) {
+  if (!birthDate) return null;
+  // Moon ecliptic longitude at J2000.0 ≈ 218.3°; moves ~13.176°/day
+  const refMs = new Date('2000-01-01T12:00:00Z').getTime();
+  const birthMs = new Date(birthDate + 'T12:00:00Z').getTime();
+  const daysSince = (birthMs - refMs) / (1000 * 60 * 60 * 24);
+  let moonLon = (218.3 + 13.176 * daysSince) % 360;
+  if (moonLon < 0) moonLon += 360;
+  const signs = [
+    { sign: 'Aries', emoji: '♈' }, { sign: 'Tauro', emoji: '♉' },
+    { sign: 'Géminis', emoji: '♊' }, { sign: 'Cáncer', emoji: '♋' },
+    { sign: 'Leo', emoji: '♌' }, { sign: 'Virgo', emoji: '♍' },
+    { sign: 'Libra', emoji: '♎' }, { sign: 'Escorpio', emoji: '♏' },
+    { sign: 'Sagitario', emoji: '♐' }, { sign: 'Capricornio', emoji: '♑' },
+    { sign: 'Acuario', emoji: '♒' }, { sign: 'Piscis', emoji: '♓' },
+  ];
+  return signs[Math.floor(moonLon / 30) % 12];
+}
+
+function getAscendant(birthDate, birthTime) {
+  if (!birthDate || !birthTime) return null;
+  const [h, min] = birthTime.split(':').map(Number);
+  const birthHour = h + min / 60;
+  const refMs = new Date('2000-01-01T12:00:00Z').getTime();
+  const birthMs = new Date(birthDate + 'T00:00:00Z').getTime();
+  const daysSince = (birthMs - refMs) / (1000 * 60 * 60 * 24);
+  // Simplified sidereal time (0° longitude, ~10°N latitude for Latin America)
+  const gmst = (100.4606184 + 36000.77004 * (daysSince / 36525)) % 360;
+  let lst = (gmst + birthHour * 15) % 360;
+  if (lst < 0) lst += 360;
+  const signs = [
+    { sign: 'Aries', emoji: '♈' }, { sign: 'Tauro', emoji: '♉' },
+    { sign: 'Géminis', emoji: '♊' }, { sign: 'Cáncer', emoji: '♋' },
+    { sign: 'Leo', emoji: '♌' }, { sign: 'Virgo', emoji: '♍' },
+    { sign: 'Libra', emoji: '♎' }, { sign: 'Escorpio', emoji: '♏' },
+    { sign: 'Sagitario', emoji: '♐' }, { sign: 'Capricornio', emoji: '♑' },
+    { sign: 'Acuario', emoji: '♒' }, { sign: 'Piscis', emoji: '♓' },
+  ];
+  return signs[Math.floor(((lst + 180) % 360) / 30) % 12];
+}
+
+function enrichChild(child) {
+  return {
+    ...child,
+    astral_chart: child.birth_date ? {
+      solar: getSolarSign(child.birth_date),
+      lunar: getLunarSign(child.birth_date),
+      ascendant: getAscendant(child.birth_date, child.birth_time),
+    } : null,
+  };
 }
 
 module.exports = { getChildren, addChild, updateChild, deleteChild };
