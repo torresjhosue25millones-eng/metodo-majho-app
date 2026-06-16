@@ -92,11 +92,16 @@ function ChildCard({ child, onUpdate, onDelete }) {
                 </p>
               )}
               {child.astral_chart?.solar && (
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {child.astral_chart.solar.emoji} {child.astral_chart.solar.sign}
-                  {child.astral_chart.lunar && ` · ${child.astral_chart.lunar.emoji} ${child.astral_chart.lunar.sign}`}
-                  {child.astral_chart.ascendant && ` · ↑${child.astral_chart.ascendant.emoji} ${child.astral_chart.ascendant.sign}`}
-                </p>
+                <>
+                  {child.astral_chart.is_mother && (
+                    <p className="text-xs text-rose-400 font-medium mt-0.5">🌠 Tu carta astral, mamá</p>
+                  )}
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {child.astral_chart.solar.emoji} {child.astral_chart.solar.sign}
+                    {child.astral_chart.lunar && ` · ${child.astral_chart.lunar.emoji} ${child.astral_chart.lunar.sign}`}
+                    {child.astral_chart.ascendant && ` · ↑${child.astral_chart.ascendant.emoji} ${child.astral_chart.ascendant.sign}`}
+                  </p>
+                </>
               )}
             </div>
           </div>
@@ -148,7 +153,21 @@ export default function Profile() {
     if (!newChild.name) return;
     setAddingChild(true);
     try {
-      const res = await api.post('/children', newChild);
+      const isEmbarazo = newChild.age_stage === 'embarazo';
+      const payload = {
+        name: newChild.name,
+        age_stage: newChild.age_stage || undefined,
+        ...(isEmbarazo ? {
+          mother_birth_date: newChild.birth_date || undefined,
+          mother_birth_time: newChild.birth_time || undefined,
+          mother_birth_place: newChild.birth_place || undefined,
+        } : {
+          birth_date: newChild.birth_date || undefined,
+          birth_time: newChild.birth_time || undefined,
+          birth_place: newChild.birth_place || undefined,
+        }),
+      };
+      const res = await api.post('/children', payload);
       setChildren(prev => [...prev, res.data.child]);
       setNewChild({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_place: '' });
       setShowAddChild(false);
@@ -278,20 +297,21 @@ export default function Profile() {
               <input
                 type="date"
                 className="input-field text-sm"
+                placeholder={newChild.age_stage === 'embarazo' ? 'Tu fecha de nacimiento (opcional)' : 'Fecha de nacimiento (opcional)'}
                 value={newChild.birth_date}
                 onChange={e => setNewChild(c => ({ ...c, birth_date: e.target.value }))}
               />
               <input
                 type="time"
                 className="input-field text-sm"
-                placeholder="Hora de nacimiento (opcional)"
+                placeholder={newChild.age_stage === 'embarazo' ? 'Tu hora de nacimiento (opcional)' : 'Hora de nacimiento (opcional)'}
                 value={newChild.birth_time}
                 onChange={e => setNewChild(c => ({ ...c, birth_time: e.target.value }))}
               />
               <input
                 type="text"
                 className="input-field text-sm"
-                placeholder="Ciudad de nacimiento (opcional)"
+                placeholder={newChild.age_stage === 'embarazo' ? 'Tu ciudad de nacimiento (opcional)' : 'Ciudad de nacimiento (opcional)'}
                 value={newChild.birth_place}
                 onChange={e => setNewChild(c => ({ ...c, birth_place: e.target.value }))}
               />

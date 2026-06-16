@@ -7,7 +7,11 @@ function getChildren(req, res) {
 }
 
 function addChild(req, res) {
-  const { name, birth_date, birth_time, birth_place, age_stage } = req.body;
+  const {
+    name, age_stage,
+    birth_date, birth_time, birth_place,
+    mother_birth_date, mother_birth_time, mother_birth_place,
+  } = req.body;
   if (!name) return res.status(400).json({ error: 'El nombre del niño/a es requerido' });
 
   const db = initDb();
@@ -15,10 +19,13 @@ function addChild(req, res) {
     id: nextId('children'),
     user_id: req.userId,
     name,
+    age_stage: age_stage || deriveAgeStage(birth_date),
     birth_date: birth_date || null,
     birth_time: birth_time || null,
     birth_place: birth_place || null,
-    age_stage: age_stage || deriveAgeStage(birth_date),
+    mother_birth_date: mother_birth_date || null,
+    mother_birth_time: mother_birth_time || null,
+    mother_birth_place: mother_birth_place || null,
     vibration_type: null,
     created_at: new Date().toISOString(),
   };
@@ -27,7 +34,11 @@ function addChild(req, res) {
 }
 
 function updateChild(req, res) {
-  const { name, birth_date, birth_time, birth_place, age_stage, vibration_type } = req.body;
+  const {
+    name, age_stage, vibration_type,
+    birth_date, birth_time, birth_place,
+    mother_birth_date, mother_birth_time, mother_birth_place,
+  } = req.body;
   const db = initDb();
   const id = Number(req.params.id);
   const child = db.get('children').find({ id, user_id: req.userId }).value();
@@ -35,11 +46,14 @@ function updateChild(req, res) {
 
   db.get('children').find({ id }).assign({
     ...(name && { name }),
+    ...(age_stage && { age_stage }),
+    ...(vibration_type && { vibration_type }),
     ...(birth_date !== undefined && { birth_date }),
     ...(birth_time !== undefined && { birth_time }),
     ...(birth_place !== undefined && { birth_place }),
-    ...(age_stage && { age_stage }),
-    ...(vibration_type && { vibration_type }),
+    ...(mother_birth_date !== undefined && { mother_birth_date }),
+    ...(mother_birth_time !== undefined && { mother_birth_time }),
+    ...(mother_birth_place !== undefined && { mother_birth_place }),
     updated_at: new Date().toISOString(),
   }).write();
 
@@ -129,12 +143,16 @@ function getAscendant(birthDate, birthTime) {
 }
 
 function enrichChild(child) {
+  const isEmbarazo = child.age_stage === 'embarazo';
+  const chartDate = isEmbarazo ? child.mother_birth_date : child.birth_date;
+  const chartTime = isEmbarazo ? child.mother_birth_time : child.birth_time;
   return {
     ...child,
-    astral_chart: child.birth_date ? {
-      solar: getSolarSign(child.birth_date),
-      lunar: getLunarSign(child.birth_date),
-      ascendant: getAscendant(child.birth_date, child.birth_time),
+    astral_chart: chartDate ? {
+      solar: getSolarSign(chartDate),
+      lunar: getLunarSign(chartDate),
+      ascendant: getAscendant(chartDate, chartTime),
+      is_mother: isEmbarazo,
     } : null,
   };
 }

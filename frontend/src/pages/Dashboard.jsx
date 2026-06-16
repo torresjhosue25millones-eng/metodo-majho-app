@@ -175,7 +175,9 @@ export default function Dashboard() {
               <span className="text-xl">🌠</span>
               <div>
                 <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Carta Astral</p>
-                <p className="font-semibold text-deep-plum text-sm">{firstChild.name}</p>
+                <p className="font-semibold text-deep-plum text-sm">
+                  {firstChild.astral_chart.is_mother ? 'Tu Carta Astral, mamá' : firstChild.name}
+                </p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">

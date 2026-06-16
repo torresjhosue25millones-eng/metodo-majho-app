@@ -93,13 +93,20 @@ export default function Login() {
       await register({ name: mama.name, email: mama.email, password: mama.password, children_count: child.name ? 1 : 0 });
       if (child.name) {
         const birthPlace = [child.birth_city, child.birth_country].filter(Boolean).join(', ') || null;
+        const isEmbarazo = child.age_stage === 'embarazo';
         try {
           await api.post('/children', {
             name: child.name,
             age_stage: child.age_stage || null,
-            birth_date: child.birth_date || null,
-            birth_time: child.birth_time || null,
-            birth_place: birthPlace,
+            ...(isEmbarazo ? {
+              mother_birth_date: child.birth_date || null,
+              mother_birth_time: child.birth_time || null,
+              mother_birth_place: birthPlace,
+            } : {
+              birth_date: child.birth_date || null,
+              birth_time: child.birth_time || null,
+              birth_place: birthPlace,
+            }),
           });
         } catch {
           // Usuario ya registrado, continuar aunque falle el hijo
@@ -308,35 +315,48 @@ export default function Login() {
                     <div className="flex items-start gap-3">
                       <span className="text-2xl">🌠</span>
                       <div>
-                        <p className="font-semibold text-deep-plum text-sm">Datos para la Carta Astral</p>
-                        <p className="text-gray-500 text-xs mt-0.5">Opcionales — personalizan aún más el camino de tu hijo/a.</p>
+                        {child.age_stage === 'embarazo' ? (
+                          <>
+                            <p className="font-semibold text-deep-plum text-sm">Datos para tu Carta Astral</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — personalizan tu camino como mamá.</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-semibold text-deep-plum text-sm">Datos para la Carta Astral de tu hijo/a</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — personalizan aún más el camino de tu hijo/a.</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      Fecha de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                      {child.age_stage === 'embarazo' ? 'Tu fecha de nacimiento' : 'Fecha de nacimiento'}{' '}
+                      <span className="text-gray-400 font-normal">(opcional)</span>
                     </label>
                     <input type="date" className="input-field"
                       value={child.birth_date} onChange={e => setChild(c => ({ ...c, birth_date: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      Hora de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                      {child.age_stage === 'embarazo' ? 'Tu hora de nacimiento' : 'Hora de nacimiento'}{' '}
+                      <span className="text-gray-400 font-normal">(opcional)</span>
                     </label>
                     <input type="time" className="input-field"
                       value={child.birth_time} onChange={e => setChild(c => ({ ...c, birth_time: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      Ciudad de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                      {child.age_stage === 'embarazo' ? 'Tu ciudad de nacimiento' : 'Ciudad de nacimiento'}{' '}
+                      <span className="text-gray-400 font-normal">(opcional)</span>
                     </label>
                     <input placeholder="Ej: Bogotá" className="input-field"
                       value={child.birth_city} onChange={e => setChild(c => ({ ...c, birth_city: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      País <span className="text-gray-400 font-normal">(opcional)</span>
+                      {child.age_stage === 'embarazo' ? 'Tu país' : 'País'}{' '}
+                      <span className="text-gray-400 font-normal">(opcional)</span>
                     </label>
                     <input placeholder="Ej: Colombia" className="input-field"
                       value={child.birth_country} onChange={e => setChild(c => ({ ...c, birth_country: e.target.value }))} />
