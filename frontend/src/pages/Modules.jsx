@@ -30,6 +30,12 @@ export default function Modules() {
   // Determine recommended modules based on children's age stages
   const recommendedStages = new Set(children.map(c => c.age_stage).filter(Boolean));
 
+  const sortedModules = [...modules].sort((a, b) => {
+    const aRec = recommendedStages.has(a.age_range) ? -1 : 1;
+    const bRec = recommendedStages.has(b.age_range) ? -1 : 1;
+    return aRec - bRec;
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-cream flex flex-col">
@@ -65,7 +71,7 @@ export default function Modules() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((m, i) => {
+          {sortedModules.map((m, i) => {
             const isRecommended = recommendedStages.has(m.age_range);
             return (
               <Link

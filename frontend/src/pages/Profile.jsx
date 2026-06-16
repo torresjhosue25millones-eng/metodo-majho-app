@@ -115,7 +115,7 @@ export default function Profile() {
   const [success, setSuccess] = useState(false);
   const [children, setChildren] = useState([]);
   const [showAddChild, setShowAddChild] = useState(false);
-  const [newChild, setNewChild] = useState({ name: '', age_stage: '', birth_date: '' });
+  const [newChild, setNewChild] = useState({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_place: '' });
   const [addingChild, setAddingChild] = useState(false);
 
   useEffect(() => {
@@ -143,7 +143,7 @@ export default function Profile() {
     try {
       const res = await api.post('/children', newChild);
       setChildren(prev => [...prev, res.data.child]);
-      setNewChild({ name: '', age_stage: '', birth_date: '' });
+      setNewChild({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_place: '' });
       setShowAddChild(false);
     } finally {
       setAddingChild(false);
@@ -273,6 +273,20 @@ export default function Profile() {
                 className="input-field text-sm"
                 value={newChild.birth_date}
                 onChange={e => setNewChild(c => ({ ...c, birth_date: e.target.value }))}
+              />
+              <input
+                type="time"
+                className="input-field text-sm"
+                placeholder="Hora de nacimiento (opcional)"
+                value={newChild.birth_time}
+                onChange={e => setNewChild(c => ({ ...c, birth_time: e.target.value }))}
+              />
+              <input
+                type="text"
+                className="input-field text-sm"
+                placeholder="Ciudad de nacimiento (opcional)"
+                value={newChild.birth_place}
+                onChange={e => setNewChild(c => ({ ...c, birth_place: e.target.value }))}
               />
               <div className="flex gap-2">
                 <button type="submit" disabled={addingChild} className="btn-primary py-2 px-4 text-sm flex-1">
