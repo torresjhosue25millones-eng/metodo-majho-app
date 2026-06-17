@@ -4,6 +4,8 @@ import api from '../services/api';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import ActionPlanView from '../components/ActionPlanView';
+import JournalView from '../components/JournalView';
+import EmergencyView from '../components/EmergencyView';
 
 const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
 
@@ -15,13 +17,21 @@ function findMatchingChild(children, module) {
   });
 }
 
-const TABS = [
-  { key: 'lecciones', label: 'Lecciones', icon: '📖' },
-  { key: 'carta', label: 'Carta Astral', icon: '🔮' },
-  { key: 'audio', label: 'Audiolibro', icon: '🎧' },
-  { key: 'plan', label: 'Plan 30 días', icon: '📅' },
-  { key: 'mensual', label: 'Tu Camino del Embarazo', icon: '🌙' },
-];
+function getTabs(module) {
+  const isEmbarazo = module?.age_range === 'embarazo';
+  return [
+    { key: 'lecciones', label: 'Lecciones', icon: '📖' },
+    { key: 'carta', label: 'Carta Astral', icon: '🔮' },
+    { key: 'audio', label: 'Audiolibro', icon: '🎧' },
+    // El embarazo no tiene un tipo de vibración calculable (el niño aún no nace);
+    // su plan es "Tu Camino del Embarazo", basado en el mes real de gestación.
+    isEmbarazo
+      ? { key: 'mensual', label: 'Tu Camino del Embarazo', icon: '🌙' }
+      : { key: 'plan', label: 'Plan 30 días', icon: '📅' },
+    { key: 'diario', label: 'Diario', icon: '✍️' },
+    { key: 'emergencia', label: 'Línea de apoyo', icon: '💬' },
+  ];
+}
 
 export default function ModuleDetail() {
   const { id } = useParams();
@@ -97,6 +107,7 @@ export default function ModuleDetail() {
   const pct = Math.round((completedCount / lessons.length) * 100);
   const matchingChild = findMatchingChild(children, module);
   const chart = matchingChild?.astral_chart;
+  const TABS = getTabs(module);
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
@@ -427,6 +438,20 @@ export default function ModuleDetail() {
                 })()}
               </>
             )}
+          </div>
+        )}
+
+        {/* ── Diario ─────────────────────────────────────── */}
+        {activeTab === 'diario' && (
+          <div className="animate-fade-in">
+            <JournalView />
+          </div>
+        )}
+
+        {/* ── Línea de apoyo ─────────────────────────────── */}
+        {activeTab === 'emergencia' && (
+          <div className="animate-fade-in">
+            <EmergencyView />
           </div>
         )}
       </main>
