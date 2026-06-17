@@ -41,7 +41,7 @@ export default function Login() {
   // ── Register state ─────────────────────────────────────────
   const [step, setStep] = useState(1);
   const [mama, setMama] = useState({ name: '', email: '', password: '' });
-  const [child, setChild] = useState({ name: '', age_stage: '', due_date: '', birth_date: '', birth_time: '', birth_city: '', birth_country: '' });
+  const [child, setChild] = useState({ name: '', age_stage: '', mother_name: '', birth_date: '', birth_time: '', birth_city: '', birth_country: '' });
   const [regError, setRegError] = useState('');
   const [regLoading, setRegLoading] = useState(false);
   const [emailExists, setEmailExists] = useState('');
@@ -91,23 +91,23 @@ export default function Login() {
     setRegLoading(true);
     try {
       const isEmbarazo = child.age_stage === 'embarazo';
-      const hasChildData = child.name || child.age_stage || child.due_date || child.birth_date;
+      const hasChildData = child.name || child.age_stage || child.mother_name || child.birth_date;
       await register({ name: mama.name, email: mama.email, password: mama.password, children_count: hasChildData ? 1 : 0 });
       if (hasChildData) {
-        const birthPlace = [child.birth_city, child.birth_country].filter(Boolean).join(', ') || null;
         try {
           await api.post('/children', {
-            name: child.name || (isEmbarazo ? 'Bebé en camino' : 'Mi hijo/a'),
+            name: isEmbarazo ? 'Bebé en camino' : (child.name || 'Mi hijo/a'),
             age_stage: child.age_stage || null,
             ...(isEmbarazo ? {
-              due_date: child.due_date || null,
+              mother_name: child.mother_name || null,
               mother_birth_date: child.birth_date || null,
               mother_birth_time: child.birth_time || null,
-              mother_birth_place: birthPlace,
+              mother_birth_place: child.birth_city || null,
+              mother_birth_country: child.birth_country || null,
             } : {
               birth_date: child.birth_date || null,
               birth_time: child.birth_time || null,
-              birth_place: birthPlace,
+              birth_place: [child.birth_city, child.birth_country].filter(Boolean).join(', ') || null,
             }),
           });
         } catch {
@@ -218,6 +218,7 @@ export default function Login() {
               <div className="flex items-center justify-center gap-2 mb-6">
                 {REG_STEPS.map((label, i) => {
                   const s = i + 1;
+                  const displayLabel = s === 2 && child.age_stage === 'embarazo' ? 'Tus datos' : label;
                   return (
                     <div key={s} className="flex items-center gap-2">
                       <div className="flex flex-col items-center">
@@ -225,7 +226,7 @@ export default function Login() {
                           ${step > s ? 'bg-rose-500 text-white' : step === s ? 'bg-rose-500 text-white ring-2 ring-rose-200' : 'bg-gray-100 text-gray-400'}`}>
                           {step > s ? '✓' : s}
                         </div>
-                        <span className={`text-xs mt-1 ${step >= s ? 'text-rose-600' : 'text-gray-300'}`}>{label}</span>
+                        <span className={`text-xs mt-1 ${step >= s ? 'text-rose-600' : 'text-gray-300'}`}>{displayLabel}</span>
                       </div>
                       {s < 3 && <div className={`w-8 h-0.5 mb-4 transition-all ${step > s ? 'bg-rose-400' : 'bg-gray-200'}`} />}
                     </div>
@@ -303,24 +304,45 @@ export default function Login() {
                         <div className="flex items-start gap-3">
                           <span className="text-2xl">🤰</span>
                           <div>
-                            <p className="font-semibold text-deep-plum text-sm">Datos del embarazo</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — puedes completarlos más tarde.</p>
+                            <p className="font-semibold text-deep-plum text-sm">Tus datos</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — los usaremos para tu Carta Astral.</p>
                           </div>
                         </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                          Nombre que le pondrán al bebé <span className="text-gray-400 font-normal">(opcional)</span>
+                          Nombre completo <span className="text-gray-400 font-normal">(opcional)</span>
                         </label>
-                        <input placeholder="¿Ya tienen un nombre en mente?" className="input-field"
-                          value={child.name} onChange={e => setChild(c => ({ ...c, name: e.target.value }))} />
+                        <input placeholder="Tu nombre completo" className="input-field"
+                          value={child.mother_name} onChange={e => setChild(c => ({ ...c, mother_name: e.target.value }))} />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                          Fecha probable de parto <span className="text-gray-400 font-normal">(opcional)</span>
+                          Fecha de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
                         </label>
                         <input type="date" className="input-field"
-                          value={child.due_date} onChange={e => setChild(c => ({ ...c, due_date: e.target.value }))} />
+                          value={child.birth_date} onChange={e => setChild(c => ({ ...c, birth_date: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          Hora de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input type="time" className="input-field"
+                          value={child.birth_time} onChange={e => setChild(c => ({ ...c, birth_time: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          Ciudad de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input placeholder="Ej: Bogotá" className="input-field"
+                          value={child.birth_city} onChange={e => setChild(c => ({ ...c, birth_city: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          País de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input placeholder="Ej: Colombia" className="input-field"
+                          value={child.birth_country} onChange={e => setChild(c => ({ ...c, birth_country: e.target.value }))} />
                       </div>
                     </>
                   ) : (
@@ -343,56 +365,59 @@ export default function Login() {
               {/* Step 3: Carta astral */}
               {step === 3 && (
                 <form onSubmit={handleRegister} className="space-y-4">
-                  <div className="bg-rose-50 rounded-2xl p-4 mb-2">
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl">🌠</span>
-                      <div>
-                        {child.age_stage === 'embarazo' ? (
-                          <>
-                            <p className="font-semibold text-deep-plum text-sm">Datos para tu Carta Astral</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — personalizan tu camino como mamá.</p>
-                          </>
-                        ) : (
-                          <>
-                            <p className="font-semibold text-deep-plum text-sm">Datos para la Carta Astral de tu hijo/a</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — personalizan aún más el camino de tu hijo/a.</p>
-                          </>
-                        )}
+                  {child.age_stage === 'embarazo' ? (
+                    <div className="bg-rose-50 rounded-2xl p-4 mb-2">
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl">🌠</span>
+                        <div>
+                          <p className="font-semibold text-deep-plum text-sm">Tu Carta Astral</p>
+                          <p className="text-gray-500 text-xs mt-0.5">
+                            Calcularemos tu carta astral, mamá, con los datos que nos compartiste.
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      {child.age_stage === 'embarazo' ? 'Tu fecha de nacimiento' : 'Fecha de nacimiento'}{' '}
-                      <span className="text-gray-400 font-normal">(opcional)</span>
-                    </label>
-                    <input type="date" className="input-field"
-                      value={child.birth_date} onChange={e => setChild(c => ({ ...c, birth_date: e.target.value }))} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      {child.age_stage === 'embarazo' ? 'Tu hora de nacimiento' : 'Hora de nacimiento'}{' '}
-                      <span className="text-gray-400 font-normal">(opcional)</span>
-                    </label>
-                    <input type="time" className="input-field"
-                      value={child.birth_time} onChange={e => setChild(c => ({ ...c, birth_time: e.target.value }))} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      {child.age_stage === 'embarazo' ? 'Tu ciudad de nacimiento' : 'Ciudad de nacimiento'}{' '}
-                      <span className="text-gray-400 font-normal">(opcional)</span>
-                    </label>
-                    <input placeholder="Ej: Bogotá" className="input-field"
-                      value={child.birth_city} onChange={e => setChild(c => ({ ...c, birth_city: e.target.value }))} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      {child.age_stage === 'embarazo' ? 'Tu país' : 'País'}{' '}
-                      <span className="text-gray-400 font-normal">(opcional)</span>
-                    </label>
-                    <input placeholder="Ej: Colombia" className="input-field"
-                      value={child.birth_country} onChange={e => setChild(c => ({ ...c, birth_country: e.target.value }))} />
-                  </div>
+                  ) : (
+                    <>
+                      <div className="bg-rose-50 rounded-2xl p-4 mb-2">
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl">🌠</span>
+                          <div>
+                            <p className="font-semibold text-deep-plum text-sm">Datos para la Carta Astral de tu hijo/a</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — personalizan aún más el camino de tu hijo/a.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          Fecha de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input type="date" className="input-field"
+                          value={child.birth_date} onChange={e => setChild(c => ({ ...c, birth_date: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          Hora de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input type="time" className="input-field"
+                          value={child.birth_time} onChange={e => setChild(c => ({ ...c, birth_time: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          Ciudad de nacimiento <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input placeholder="Ej: Bogotá" className="input-field"
+                          value={child.birth_city} onChange={e => setChild(c => ({ ...c, birth_city: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          País <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input placeholder="Ej: Colombia" className="input-field"
+                          value={child.birth_country} onChange={e => setChild(c => ({ ...c, birth_country: e.target.value }))} />
+                      </div>
+                    </>
+                  )}
                   <div className="flex gap-3 pt-2">
                     <button type="button" onClick={() => setStep(2)} className="btn-secondary flex-1">← Atrás</button>
                     <button type="submit" disabled={regLoading} className="btn-primary flex-1 py-3 disabled:opacity-60">

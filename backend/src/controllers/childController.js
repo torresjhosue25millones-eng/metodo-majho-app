@@ -8,9 +8,9 @@ function getChildren(req, res) {
 
 function addChild(req, res) {
   const {
-    name, age_stage, due_date,
+    name, age_stage,
     birth_date, birth_time, birth_place,
-    mother_birth_date, mother_birth_time, mother_birth_place,
+    mother_name, mother_birth_date, mother_birth_time, mother_birth_place, mother_birth_country,
   } = req.body;
   if (!name) return res.status(400).json({ error: 'El nombre del niño/a es requerido' });
 
@@ -20,13 +20,14 @@ function addChild(req, res) {
     user_id: req.userId,
     name,
     age_stage: age_stage || deriveAgeStage(birth_date),
-    due_date: due_date || null,
     birth_date: birth_date || null,
     birth_time: birth_time || null,
     birth_place: birth_place || null,
+    mother_name: mother_name || null,
     mother_birth_date: mother_birth_date || null,
     mother_birth_time: mother_birth_time || null,
     mother_birth_place: mother_birth_place || null,
+    mother_birth_country: mother_birth_country || null,
     vibration_type: null,
     created_at: new Date().toISOString(),
   };
@@ -36,9 +37,9 @@ function addChild(req, res) {
 
 function updateChild(req, res) {
   const {
-    name, age_stage, vibration_type, due_date,
+    name, age_stage, vibration_type,
     birth_date, birth_time, birth_place,
-    mother_birth_date, mother_birth_time, mother_birth_place,
+    mother_name, mother_birth_date, mother_birth_time, mother_birth_place, mother_birth_country,
   } = req.body;
   const db = initDb();
   const id = Number(req.params.id);
@@ -49,13 +50,14 @@ function updateChild(req, res) {
     ...(name && { name }),
     ...(age_stage && { age_stage }),
     ...(vibration_type && { vibration_type }),
-    ...(due_date !== undefined && { due_date }),
     ...(birth_date !== undefined && { birth_date }),
     ...(birth_time !== undefined && { birth_time }),
     ...(birth_place !== undefined && { birth_place }),
+    ...(mother_name !== undefined && { mother_name }),
     ...(mother_birth_date !== undefined && { mother_birth_date }),
     ...(mother_birth_time !== undefined && { mother_birth_time }),
     ...(mother_birth_place !== undefined && { mother_birth_place }),
+    ...(mother_birth_country !== undefined && { mother_birth_country }),
     updated_at: new Date().toISOString(),
   }).write();
 
