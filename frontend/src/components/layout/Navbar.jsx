@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../../services/api';
+import { getMatchingModule } from '../../utils/moduleMatch';
 
 function LogoImg() {
   const [failed, setFailed] = useState(false);
@@ -9,21 +11,31 @@ function LogoImg() {
     : <img src="/assets/logo-majho.png" alt="Método MAJHO" style={{ height: 70, width: 'auto' }} onError={() => setFailed(true)} />;
 }
 
-const navLinks = [
-  { to: '/dashboard', label: 'Inicio', icon: '🏠' },
-  { to: '/modulos', label: 'Módulos', icon: '📖' },
-  { to: '/plan', label: 'Plan 30 días', icon: '📅' },
-  { to: '/cuestionario', label: 'Vibración', icon: '🔮' },
-  { to: '/diario', label: 'Diario', icon: '✍️' },
-  { to: '/afirmaciones', label: 'Afirmaciones', icon: '✨' },
-  { to: '/perfil', label: 'Perfil', icon: '👤' },
-];
-
 export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [myModuleLink, setMyModuleLink] = useState('/modulos');
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([api.get('/children'), api.get('/modules')])
+      .then(([childRes, modRes]) => {
+        const mod = getMatchingModule(childRes.data.children, modRes.data.modules);
+        if (mod) setMyModuleLink(`/modulos/${mod.id}`);
+      })
+      .catch(() => {});
+  }, [user]);
+
+  const navLinks = [
+    { to: '/dashboard', label: 'Inicio', icon: '🏠' },
+    { to: '/modulos', label: 'Módulos', icon: '📖' },
+    { to: myModuleLink, label: 'Mi Módulo', icon: '🌙' },
+    { to: '/diario', label: 'Diario', icon: '✍️' },
+    { to: '/afirmaciones', label: 'Afirmaciones', icon: '✨' },
+    { to: '/perfil', label: 'Perfil', icon: '👤' },
+  ];
 
   function handleLogout() { logout(); navigate('/'); }
 
@@ -39,7 +51,7 @@ export default function Navbar() {
           {/* Desktop nav */}
           <div className="hidden xl:flex items-center gap-0.5">
             {navLinks.map(link => (
-              <Link key={link.to} to={link.to}
+              <Link key={link.label} to={link.to}
                 className={`flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-medium transition-colors
                   ${location.pathname === link.to ? 'bg-rose-50 text-rose-600' : 'text-gray-600 hover:text-rose-500 hover:bg-rose-50'}`}>
                 <span>{link.icon}</span>
@@ -73,7 +85,7 @@ export default function Navbar() {
         {menuOpen && (
           <div className="xl:hidden border-t border-rose-100 py-2 animate-slide-up">
             {navLinks.map(link => (
-              <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)}
+              <Link key={link.label} to={link.to} onClick={() => setMenuOpen(false)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium mb-0.5
                   ${location.pathname === link.to ? 'bg-rose-50 text-rose-600' : 'text-gray-600'}`}>
                 <span>{link.icon}</span><span>{link.label}</span>

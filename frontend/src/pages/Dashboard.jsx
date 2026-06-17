@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import { getMatchingModule } from '../utils/moduleMatch';
 
 const TYPE_COLORS = {
   indigo: { color: '#4B0082', bg: '#F0E6FF', emoji: '💙', name: 'Índigo' },
@@ -43,7 +44,10 @@ export default function Dashboard() {
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
   const pct = totalLessons > 0 ? Math.round((progress / totalLessons) * 100) : 0;
   const firstChild = children[0];
+  const isEmbarazo = firstChild?.age_stage === 'embarazo';
   const typeData = vibResult?.type?.key ? TYPE_COLORS[vibResult.type.key] : null;
+  const myModule = getMatchingModule(children, modules);
+  const myModuleLink = myModule ? `/modulos/${myModule.id}` : '/modulos';
 
   if (loading) {
     return (
@@ -131,8 +135,12 @@ export default function Dashboard() {
                       </p>
                     </div>
                   </div>
+                ) : isEmbarazo ? (
+                  <Link to={myModuleLink} className="text-xs text-rose-500 hover:text-rose-700 font-medium">
+                    🤰 Ver mi camino del embarazo →
+                  </Link>
                 ) : (
-                  <Link to="/cuestionario" className="text-xs text-rose-500 hover:text-rose-700 font-medium">
+                  <Link to={myModuleLink} className="text-xs text-rose-500 hover:text-rose-700 font-medium">
                     🔮 Descubrir su vibración →
                   </Link>
                 )}
@@ -153,7 +161,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
             { to: '/modulos', icon: '📖', label: 'Módulos MAJHO', color: 'bg-rose-50 border-rose-200 text-rose-700' },
-            { to: '/cuestionario', icon: '🔮', label: 'Test Vibración', color: 'bg-plum-50 border-plum-200 text-plum-600' },
+            { to: myModuleLink, icon: isEmbarazo ? '🌙' : '🔮', label: 'Mi Módulo', color: 'bg-plum-50 border-plum-200 text-plum-600' },
             { to: '/diario', icon: '✍️', label: 'Mi Diario', color: 'bg-amber-50 border-amber-200 text-amber-700' },
             { to: '/emergencia', icon: '💬', label: 'Línea de apoyo MAJHO', color: 'bg-[#E9F9EF] border-[#25D366]/40 text-[#1A8C49]' },
           ].map(item => (
@@ -217,43 +225,35 @@ export default function Dashboard() {
               <h2 className="font-serif text-2xl text-deep-plum">Continúa tu camino</h2>
               <Link to="/modulos" className="btn-ghost text-sm">Ver todos →</Link>
             </div>
-            {(() => {
-              const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
-              const stageKey = STAGE_MAP[firstChild.age_stage] || firstChild.age_stage;
-              const mod = modules.find(m => m.age_range === stageKey || m.age_range === firstChild.age_stage);
-              if (!mod) {
-                return (
-                  <div className="card border-dashed border-2 border-rose-200 text-center py-8">
-                    <p className="text-gray-500 mb-3">Completa la etapa de vida de {firstChild.name} en tu perfil</p>
-                    <Link to="/perfil" className="text-sm text-rose-500 font-medium hover:text-rose-700">Ir al perfil →</Link>
+            {!myModule ? (
+              <div className="card border-dashed border-2 border-rose-200 text-center py-8">
+                <p className="text-gray-500 mb-3">Completa la etapa de vida de {firstChild.name} en tu perfil</p>
+                <Link to="/perfil" className="text-sm text-rose-500 font-medium hover:text-rose-700">Ir al perfil →</Link>
+              </div>
+            ) : (
+              <Link to={myModuleLink} className="card-hover group block">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
+                    style={{ backgroundColor: myModule.color + '20' }}>
+                    {myModule.icon}
                   </div>
-                );
-              }
-              return (
-                <Link to={`/modulos/${mod.id}`} className="card-hover group block">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
-                      style={{ backgroundColor: mod.color + '20' }}>
-                      {mod.icon}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: myModule.color }}>
+                      {myModule.age_label}
+                    </p>
+                    <h3 className="font-serif text-xl text-deep-plum group-hover:text-rose-600 transition-colors mb-1">
+                      {myModule.title}
+                    </h3>
+                    <p className="text-sm text-gray-400 mb-3">{myModule.subtitle}</p>
+                    <div className="bg-rose-100 rounded-full h-1.5 mb-1">
+                      <div className="h-1.5 rounded-full transition-all duration-700"
+                        style={{ width: `${myModule.progress_pct}%`, backgroundColor: myModule.color }} />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: mod.color }}>
-                        {mod.age_label}
-                      </p>
-                      <h3 className="font-serif text-xl text-deep-plum group-hover:text-rose-600 transition-colors mb-1">
-                        {mod.title}
-                      </h3>
-                      <p className="text-sm text-gray-400 mb-3">{mod.subtitle}</p>
-                      <div className="bg-rose-100 rounded-full h-1.5 mb-1">
-                        <div className="h-1.5 rounded-full transition-all duration-700"
-                          style={{ width: `${mod.progress_pct}%`, backgroundColor: mod.color }} />
-                      </div>
-                      <p className="text-xs text-gray-400">{mod.completed_lessons}/{mod.lessons_count} lecciones</p>
-                    </div>
+                    <p className="text-xs text-gray-400">{myModule.completed_lessons}/{myModule.lessons_count} lecciones</p>
                   </div>
-                </Link>
-              );
-            })()}
+                </div>
+              </Link>
+            )}
           </div>
         )}
       </main>
