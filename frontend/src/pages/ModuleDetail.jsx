@@ -143,6 +143,27 @@ export default function ModuleDetail() {
                   <p className="text-gray-600 leading-relaxed text-base">{activeLesson.content}</p>
                 </div>
 
+                {activeLesson.practice && (
+                  <div className="mt-6 bg-rose-50 rounded-2xl p-4 border border-rose-100">
+                    <p className="text-xs font-bold uppercase tracking-wide text-rose-500 mb-1">🌿 Práctica</p>
+                    <p className="text-deep-plum text-sm leading-relaxed">{activeLesson.practice}</p>
+                  </div>
+                )}
+
+                {activeLesson.ritual && (
+                  <div className="mt-4 rounded-2xl p-4 border border-gold-300/50" style={{ backgroundColor: '#F3E9CC' }}>
+                    <p className="text-xs font-bold uppercase tracking-wide text-gold-600 mb-1">🕯️ Ritual</p>
+                    <p className="text-deep-plum text-sm leading-relaxed">{activeLesson.ritual}</p>
+                  </div>
+                )}
+
+                {activeLesson.affirmation && (
+                  <div className="mt-4 bg-plum-50 rounded-2xl p-5 border border-plum-100 text-center">
+                    <p className="text-xs font-bold uppercase tracking-wide text-plum-500 mb-2">✨ Afirmación</p>
+                    <p className="font-serif text-lg text-deep-plum italic">"{activeLesson.affirmation}"</p>
+                  </div>
+                )}
+
                 <div className="mt-8 pt-6 border-t border-rose-100">
                   {activeLesson.completed ? (
                     <div className="flex items-center gap-3 text-green-600">
