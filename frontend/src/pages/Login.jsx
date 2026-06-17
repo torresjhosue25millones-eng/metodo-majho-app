@@ -13,6 +13,13 @@ const AGE_STAGES = [
 
 const REG_STEPS = ['Tu cuenta', 'Tu hijo/a', 'Carta astral'];
 
+function getStageMessage(stage) {
+  if (stage === 'embarazo') return 'Estamos contigo en cada paso de tu embarazo sagrado 🤰';
+  if (stage === '0-2') return 'Tu bebé tiene una luz especial. Acompáñale con amor 👶';
+  if (['3-7', '8-12', '13-18'].includes(stage)) return 'Descubrimos la vibración única de tu hijo/a ✨';
+  return 'Tu camino de crianza consciente comienza hoy 🌿';
+}
+
 function LogoHeader() {
   const [failed, setFailed] = useState(false);
   return (
@@ -114,7 +121,7 @@ export default function Login() {
           // Usuario ya registrado, continuar aunque falle el hijo
         }
       }
-      navigate('/dashboard');
+      setStep(4);
     } catch (err) {
       const status = err.response?.status;
       const msg = err.response?.data?.error
@@ -214,38 +221,42 @@ export default function Login() {
           {/* ── REGISTER ───────────────────────────────────── */}
           {mode === 'register' && (
             <>
-              {/* Step indicators */}
-              <div className="flex items-center justify-center gap-2 mb-6">
-                {REG_STEPS.map((label, i) => {
-                  const s = i + 1;
-                  const displayLabel = s === 2 && child.age_stage === 'embarazo' ? 'Tus datos' : label;
-                  return (
-                    <div key={s} className="flex items-center gap-2">
-                      <div className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all
-                          ${step > s ? 'bg-rose-500 text-white' : step === s ? 'bg-rose-500 text-white ring-2 ring-rose-200' : 'bg-gray-100 text-gray-400'}`}>
-                          {step > s ? '✓' : s}
+              {step <= 3 && (
+                <>
+                  {/* Step indicators */}
+                  <div className="flex items-center justify-center gap-2 mb-6">
+                    {REG_STEPS.map((label, i) => {
+                      const s = i + 1;
+                      const displayLabel = s === 2 && child.age_stage === 'embarazo' ? 'Tus datos' : label;
+                      return (
+                        <div key={s} className="flex items-center gap-2">
+                          <div className="flex flex-col items-center">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all
+                              ${step > s ? 'bg-rose-500 text-white' : step === s ? 'bg-rose-500 text-white ring-2 ring-rose-200' : 'bg-gray-100 text-gray-400'}`}>
+                              {step > s ? '✓' : s}
+                            </div>
+                            <span className={`text-xs mt-1 ${step >= s ? 'text-rose-600' : 'text-gray-300'}`}>{displayLabel}</span>
+                          </div>
+                          {s < 3 && <div className={`w-8 h-0.5 mb-4 transition-all ${step > s ? 'bg-rose-400' : 'bg-gray-200'}`} />}
                         </div>
-                        <span className={`text-xs mt-1 ${step >= s ? 'text-rose-600' : 'text-gray-300'}`}>{displayLabel}</span>
-                      </div>
-                      {s < 3 && <div className={`w-8 h-0.5 mb-4 transition-all ${step > s ? 'bg-rose-400' : 'bg-gray-200'}`} />}
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                  </div>
 
-              {regError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 mb-5 text-sm">
-                  {regError}
-                  {emailExists && (
-                    <button
-                      onClick={() => switchToLogin(emailExists)}
-                      className="block mt-2 text-rose-600 font-semibold text-xs underline"
-                    >
-                      → Iniciar sesión con {emailExists}
-                    </button>
+                  {regError && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 mb-5 text-sm">
+                      {regError}
+                      {emailExists && (
+                        <button
+                          onClick={() => switchToLogin(emailExists)}
+                          className="block mt-2 text-rose-600 font-semibold text-xs underline"
+                        >
+                          → Iniciar sesión con {emailExists}
+                        </button>
+                      )}
+                    </div>
                   )}
-                </div>
+                </>
               )}
 
               {/* Step 1: Account */}
@@ -429,6 +440,29 @@ export default function Login() {
                     Omitir y comenzar
                   </button>
                 </form>
+              )}
+
+              {/* Step 4: Confirmation */}
+              {step === 4 && (
+                <div className="text-center py-2 animate-fade-in">
+                  <div className="text-6xl mb-5 animate-float">✨</div>
+                  <h2 className="font-serif text-2xl text-deep-plum mb-2">Tu carta astral fue calculada</h2>
+                  <p className="text-rose-500 text-sm mb-6">
+                    La enviamos a <span className="font-semibold text-deep-plum">{mama.email}</span>
+                  </p>
+                  <div className="rounded-2xl p-5 mb-8 border border-gold-300/50"
+                    style={{ background: 'linear-gradient(135deg, #F0F5F2 0%, #F5EFE0 55%, #F3E9CC 100%)' }}>
+                    <p className="text-deep-plum text-sm leading-relaxed font-medium">
+                      {getStageMessage(child.age_stage)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="btn-primary w-full text-base py-3.5"
+                  >
+                    Comenzar mi camino →
+                  </button>
+                </div>
               )}
             </>
           )}
