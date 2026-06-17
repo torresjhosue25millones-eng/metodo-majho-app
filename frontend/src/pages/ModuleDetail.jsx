@@ -20,6 +20,7 @@ const TABS = [
   { key: 'carta', label: 'Carta Astral', icon: '🔮' },
   { key: 'audio', label: 'Audiolibro', icon: '🎧' },
   { key: 'plan', label: 'Plan 30 días', icon: '📅' },
+  { key: 'diario', label: 'Tu Camino Diario', icon: '🌙' },
 ];
 
 export default function ModuleDetail() {
@@ -27,8 +28,11 @@ export default function ModuleDetail() {
   const [module, setModule] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [children, setChildren] = useState([]);
+  const [dailyProgram, setDailyProgram] = useState([]);
   const [activeLesson, setActiveLesson] = useState(null);
   const [activeTab, setActiveTab] = useState('lecciones');
+  const [activeDay, setActiveDay] = useState(null);
+  const [activeWeek, setActiveWeek] = useState(1);
   const [completing, setCompleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -37,13 +41,18 @@ export default function ModuleDetail() {
     Promise.all([
       api.get(`/modules/${id}`),
       api.get('/children').catch(() => ({ data: { children: [] } })),
+      api.get(`/modules/${id}/daily-program`).catch(() => ({ data: { days: [] } })),
     ])
-      .then(([modRes, childRes]) => {
+      .then(([modRes, childRes, dailyRes]) => {
         setModule(modRes.data.module);
         setLessons(modRes.data.lessons);
         const first = modRes.data.lessons.find(l => !l.completed) || modRes.data.lessons[0];
         setActiveLesson(first);
         setChildren(childRes.data.children || []);
+        const days = dailyRes.data.days || [];
+        setDailyProgram(days);
+        setActiveDay(days[0] || null);
+        setActiveWeek(days[0]?.week || 1);
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -106,7 +115,7 @@ export default function ModuleDetail() {
             <span className="text-4xl">{module.icon}</span>
             <div>
               <p className="text-white/70 text-sm uppercase tracking-widest">{module.age_label}</p>
-              <h1 className="font-serif text-3xl font-bold">{module.title}</h1>
+              <h1 className="font-serif text-3xl font-bold">Bienvenida a {module.title}</h1>
               <p className="text-white/80">{module.subtitle}</p>
             </div>
           </div>
@@ -320,6 +329,88 @@ export default function ModuleDetail() {
         {activeTab === 'plan' && (
           <div className="animate-fade-in">
             <ActionPlanView />
+          </div>
+        )}
+
+        {/* ── Tu Camino Diario (afirmación, meditación, píldora, audio) ── */}
+        {activeTab === 'diario' && (
+          <div className="animate-fade-in">
+            {dailyProgram.length === 0 ? (
+              <div className="card border-dashed border-2 border-rose-200 text-center py-10 max-w-2xl">
+                <span className="text-4xl mb-3 block">🌙</span>
+                <p className="text-gray-500">Este módulo todavía no tiene un camino diario configurado.</p>
+              </div>
+            ) : (
+              <>
+                <div className="bg-gold-300/15 border border-gold-300/50 rounded-2xl px-4 py-3 mb-5 flex items-center gap-3 max-w-3xl">
+                  <span className="text-xl">📌</span>
+                  <p className="text-sm text-gray-600">
+                    Contenido de ejemplo — pronto será reemplazado por el contenido real del libro <em>Tu Embarazo Sagrado</em>.
+                  </p>
+                </div>
+
+                <div className="flex gap-2 mb-4 flex-wrap">
+                  {[...new Set(dailyProgram.map(d => d.week))].map(w => {
+                    const weekDays = dailyProgram.filter(d => d.week === w);
+                    return (
+                      <button key={w} onClick={() => { setActiveWeek(w); setActiveDay(weekDays[0]); }}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all border-2
+                          ${activeWeek === w ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 hover:border-rose-200 bg-white'}`}
+                        style={activeWeek === w ? { backgroundColor: module.color, borderColor: module.color } : {}}>
+                        Semana {w}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-1">
+                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                      {dailyProgram.filter(d => d.week === activeWeek).map(d => (
+                        <button key={d.day} onClick={() => setActiveDay(d)}
+                          className={`rounded-xl py-2 text-sm font-bold transition-all border-2
+                            ${activeDay?.day === d.day ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 bg-white hover:border-rose-200'}`}
+                          style={activeDay?.day === d.day ? { backgroundColor: module.color, borderColor: module.color } : {}}>
+                          {d.day}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {activeDay && (
+                    <div className="lg:col-span-2 space-y-4 animate-fade-in">
+                      <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">
+                        Día {activeDay.day} · {activeDay.pillar}
+                      </p>
+
+                      <div className="bg-plum-50 rounded-2xl p-5 border border-plum-100 text-center">
+                        <p className="text-xs font-bold uppercase tracking-wide text-plum-500 mb-2">✨ Afirmación de la semana</p>
+                        <p className="font-serif text-lg text-deep-plum italic">"{activeDay.affirmation}"</p>
+                      </div>
+
+                      <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100">
+                        <p className="text-xs font-bold uppercase tracking-wide text-rose-500 mb-1">🧘 Meditación de la semana</p>
+                        <p className="font-semibold text-deep-plum text-sm mb-1">{activeDay.meditation_title}</p>
+                        <p className="text-gray-600 text-sm leading-relaxed">{activeDay.meditation_text}</p>
+                      </div>
+
+                      <div className="rounded-2xl p-4 border border-gold-300/50" style={{ backgroundColor: '#F3E9CC' }}>
+                        <p className="text-xs font-bold uppercase tracking-wide text-gold-600 mb-1">💡 Píldora del día</p>
+                        <p className="text-deep-plum text-sm leading-relaxed">{activeDay.tip}</p>
+                      </div>
+
+                      <button onClick={() => setActiveTab('audio')}
+                        className="w-full flex items-center justify-between bg-white rounded-2xl p-4 border-2 border-gray-100 hover:border-rose-200 transition-all text-left">
+                        <span className="flex items-center gap-2 text-sm font-medium text-deep-plum">
+                          🎧 {activeDay.audio_label}
+                        </span>
+                        <span className="text-rose-400 text-sm">Ir al audiolibro →</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
       </main>
