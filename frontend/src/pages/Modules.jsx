@@ -12,6 +12,9 @@ const AGE_ICONS = {
   '13-18': '🌟',
 };
 
+// Bridges new child age_stage values to the legacy module.age_range values stored in db.json
+const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
+
 export default function Modules() {
   const [modules, setModules] = useState([]);
   const [children, setChildren] = useState([]);
@@ -28,7 +31,9 @@ export default function Modules() {
   }, []);
 
   // Determine recommended modules based on children's age stages
-  const recommendedStages = new Set(children.map(c => c.age_stage).filter(Boolean));
+  const recommendedStages = new Set(
+    children.map(c => STAGE_MAP[c.age_stage] || c.age_stage).filter(Boolean)
+  );
 
   const sortedModules = [...modules].sort((a, b) => {
     const aRec = recommendedStages.has(a.age_range) ? -1 : 1;

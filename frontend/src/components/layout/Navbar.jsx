@@ -49,11 +49,12 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 911 button */}
+            {/* Support button */}
             <Link to="/emergencia"
-              className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-2 rounded-full transition-all shadow-sm hover:shadow-md active:scale-95 flex-shrink-0">
-              <span>🆘</span>
-              <span className="hidden sm:inline">911 MAJHO</span>
+              className="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-full transition-all shadow-sm hover:shadow-md hover:brightness-95 active:scale-95 flex-shrink-0"
+              style={{ backgroundColor: '#25D366' }}>
+              <span>💬</span>
+              <span className="hidden sm:inline">Línea de apoyo MAJHO</span>
             </Link>
 
             <button onClick={handleLogout}
@@ -79,8 +80,9 @@ export default function Navbar() {
               </Link>
             ))}
             <Link to="/emergencia" onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-lg text-sm font-bold mb-0.5">
-              <span>🆘</span><span>911 MAJHO · Emergencia</span>
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold mb-0.5"
+              style={{ backgroundColor: '#E9F9EF', color: '#1A8C49' }}>
+              <span>💬</span><span>Línea de apoyo MAJHO</span>
             </Link>
             <button onClick={handleLogout}
               className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-gray-400">

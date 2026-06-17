@@ -19,7 +19,7 @@ const CRISIS_AFFIRMATIONS = [
 ];
 
 const RESOURCES = [
-  { icon: '🆘', title: 'Emergencia real', desc: 'Si hay peligro inmediato', number: '112', color: 'border-red-200 bg-red-50 text-red-700' },
+  { icon: '🚨', title: 'Emergencia real', desc: 'Si hay peligro inmediato', number: '112', color: 'border-red-200 bg-red-50 text-red-700' },
   { icon: '💬', title: 'Crisis emocional', desc: 'Apoyo psicológico urgente', number: '024', color: 'border-plum-200 bg-plum-50 text-plum-700' },
   { icon: '🤱', title: 'Lactancia', desc: 'Apoyo urgente en lactancia', number: 'LLLI: 900 100 000', color: 'border-rose-200 bg-rose-50 text-rose-700' },
   { icon: '🏥', title: 'Salud mental materna', desc: 'Depresión y ansiedad materna', number: 'Tu médico', color: 'border-teal-200 bg-teal-50 text-teal-600' },
@@ -135,18 +135,18 @@ export default function Emergency() {
       <Navbar />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-700 to-red-500 text-white py-5 px-4">
+      <div className="text-white py-5 px-4" style={{ background: 'linear-gradient(90deg, #1A8C49, #25D366)' }}>
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <span className="text-4xl animate-float">🆘</span>
+            <span className="text-4xl animate-float">💬</span>
             <div>
-              <h1 className="font-serif text-2xl font-bold">911 MAJHO · Apoyo de Emergencia</h1>
-              <p className="text-red-100 text-sm">Estás aquí porque lo necesitas. Eso ya es valentía.</p>
+              <h1 className="font-serif text-2xl font-bold">Línea de apoyo MAJHO</h1>
+              <p className="text-white/80 text-sm">Estás aquí porque lo necesitas. Eso ya es valentía.</p>
             </div>
           </div>
           {limitData && (
             <div className="bg-white/20 rounded-2xl px-4 py-2 text-center flex-shrink-0">
-              <p className="text-xs text-red-100 font-medium">Usos este mes</p>
+              <p className="text-xs text-white/80 font-medium">Usos este mes</p>
               <p className="text-white font-bold text-lg">{limitData.uses_this_month}/{limitData.limit}</p>
               <div className="flex gap-1 justify-center mt-1">
                 {Array.from({ length: limitData.limit }).map((_, i) => (
@@ -180,7 +180,7 @@ export default function Emergency() {
                   Mamá, ¿necesitas apoyo ahora mismo?
                 </h2>
                 <p className="text-gray-600 mb-2 leading-relaxed">
-                  El protocolo 911 MAJHO te guía paso a paso: respiración, anclaje y afirmaciones de emergencia.
+                  La Línea de apoyo MAJHO te guía paso a paso: respiración, anclaje y afirmaciones de acompañamiento.
                 </p>
                 {limitData && (
                   <p className="text-sm text-gray-400 mb-5">
@@ -193,9 +193,10 @@ export default function Emergency() {
                   <button
                     onClick={handleActivate}
                     disabled={activating}
-                    className="bg-red-500 hover:bg-red-600 text-white font-bold px-8 py-3.5 rounded-full transition-all shadow-lg hover:shadow-xl active:scale-95 text-base disabled:opacity-60"
+                    className="text-white font-bold px-8 py-3.5 rounded-full transition-all shadow-lg hover:shadow-xl hover:brightness-95 active:scale-95 text-base disabled:opacity-60"
+                    style={{ backgroundColor: '#25D366' }}
                   >
-                    {activating ? 'Activando...' : '🆘 Activar Protocolo 911 MAJHO'}
+                    {activating ? 'Activando...' : '💬 Activar Línea de apoyo MAJHO'}
                   </button>
                 ) : (
                   <button disabled className="bg-gray-200 text-gray-400 font-bold px-8 py-3.5 rounded-full cursor-not-allowed">

@@ -35,7 +35,8 @@
       "color": "#C9748A",
       "icon": "🤰",
       "order_num": 1,
-      "lessons_count": 24
+      "lessons_count": 24,
+      "audiobook_url": null
     },
     {
       "id": 2,
@@ -47,7 +48,8 @@
       "color": "#7CB9A8",
       "icon": "👶",
       "order_num": 2,
-      "lessons_count": 5
+      "lessons_count": 5,
+      "audiobook_url": null
     },
     {
       "id": 3,
@@ -59,7 +61,8 @@
       "color": "#9B8EC4",
       "icon": "🌱",
       "order_num": 3,
-      "lessons_count": 5
+      "lessons_count": 5,
+      "audiobook_url": null
     },
     {
       "id": 4,
@@ -71,7 +74,8 @@
       "color": "#D4AF37",
       "icon": "✨",
       "order_num": 4,
-      "lessons_count": 5
+      "lessons_count": 5,
+      "audiobook_url": null
     },
     {
       "id": 5,
@@ -83,7 +87,8 @@
       "color": "#3D1C32",
       "icon": "🌟",
       "order_num": 5,
-      "lessons_count": 5
+      "lessons_count": 5,
+      "audiobook_url": null
     }
   ],
   "lessons": [

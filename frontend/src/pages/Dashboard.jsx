@@ -155,7 +155,7 @@ export default function Dashboard() {
             { to: '/modulos', icon: '📖', label: 'Módulos MAJHO', color: 'bg-rose-50 border-rose-200 text-rose-700' },
             { to: '/cuestionario', icon: '🔮', label: 'Test Vibración', color: 'bg-plum-50 border-plum-200 text-plum-600' },
             { to: '/diario', icon: '✍️', label: 'Mi Diario', color: 'bg-amber-50 border-amber-200 text-amber-700' },
-            { to: '/emergencia', icon: '🆘', label: '911 MAJHO', color: 'bg-red-50 border-red-200 text-red-600' },
+            { to: '/emergencia', icon: '💬', label: 'Línea de apoyo MAJHO', color: 'bg-[#E9F9EF] border-[#25D366]/40 text-[#1A8C49]' },
           ].map(item => (
             <Link
               key={item.to}
