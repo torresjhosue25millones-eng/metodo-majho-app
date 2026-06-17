@@ -1,5 +1,6 @@
 const { initDb, nextId } = require('../database/init');
 const { Origin, Horoscope } = require('circular-natal-horoscope-js');
+const { sendAstralChartEmail } = require('../utils/mailer');
 
 function getChildren(req, res) {
   const db = initDb();
@@ -63,7 +64,19 @@ async function addChild(req, res) {
     created_at: new Date().toISOString(),
   };
   db.get('children').push(child).write();
-  res.status(201).json({ child: enrichChild(child) });
+  const enriched = enrichChild(child);
+
+  let emailResult = { sent: false, reason: 'no_chart' };
+  if (enriched.astral_chart) {
+    const user = db.get('users').find({ id: req.userId }).value();
+    emailResult = await sendAstralChartEmail({
+      to: user?.email,
+      name: enriched.astral_chart.is_mother ? mother_name : name,
+      chart: enriched.astral_chart,
+    });
+  }
+
+  res.status(201).json({ child: enriched, email_sent: emailResult.sent });
 }
 
 async function updateChild(req, res) {
@@ -105,7 +118,23 @@ async function updateChild(req, res) {
   }).write();
 
   const updated = db.get('children').find({ id }).value();
-  res.json({ child: enrichChild(updated) });
+  const enriched = enrichChild(updated);
+
+  // Only email when this request actually changed something the chart depends on —
+  // not on every unrelated edit (e.g. renaming the child).
+  const chartInputsChanged = [birth_date, birth_time, birth_place, mother_birth_date, mother_birth_time]
+    .some(v => v !== undefined) || motherPlaceChanged;
+  let emailResult = { sent: false, reason: 'unchanged' };
+  if (enriched.astral_chart && chartInputsChanged) {
+    const user = db.get('users').find({ id: req.userId }).value();
+    emailResult = await sendAstralChartEmail({
+      to: user?.email,
+      name: enriched.astral_chart.is_mother ? enriched.mother_name : enriched.name,
+      chart: enriched.astral_chart,
+    });
+  }
+
+  res.json({ child: enriched, email_sent: emailResult.sent });
 }
 
 function deleteChild(req, res) {
