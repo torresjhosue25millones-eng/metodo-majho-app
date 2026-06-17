@@ -41,7 +41,7 @@ export default function Login() {
   // ── Register state ─────────────────────────────────────────
   const [step, setStep] = useState(1);
   const [mama, setMama] = useState({ name: '', email: '', password: '' });
-  const [child, setChild] = useState({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_city: '', birth_country: '' });
+  const [child, setChild] = useState({ name: '', age_stage: '', due_date: '', birth_date: '', birth_time: '', birth_city: '', birth_country: '' });
   const [regError, setRegError] = useState('');
   const [regLoading, setRegLoading] = useState(false);
   const [emailExists, setEmailExists] = useState('');
@@ -90,15 +90,17 @@ export default function Login() {
     setEmailExists('');
     setRegLoading(true);
     try {
-      await register({ name: mama.name, email: mama.email, password: mama.password, children_count: child.name ? 1 : 0 });
-      if (child.name) {
+      const isEmbarazo = child.age_stage === 'embarazo';
+      const hasChildData = child.name || child.age_stage || child.due_date || child.birth_date;
+      await register({ name: mama.name, email: mama.email, password: mama.password, children_count: hasChildData ? 1 : 0 });
+      if (hasChildData) {
         const birthPlace = [child.birth_city, child.birth_country].filter(Boolean).join(', ') || null;
-        const isEmbarazo = child.age_stage === 'embarazo';
         try {
           await api.post('/children', {
-            name: child.name,
+            name: child.name || (isEmbarazo ? 'Bebé en camino' : 'Mi hijo/a'),
             age_stage: child.age_stage || null,
             ...(isEmbarazo ? {
+              due_date: child.due_date || null,
               mother_birth_date: child.birth_date || null,
               mother_birth_time: child.birth_time || null,
               mother_birth_place: birthPlace,
@@ -277,13 +279,6 @@ export default function Login() {
               {step === 2 && (
                 <form onSubmit={handleStep2} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-deep-plum mb-1.5">
-                      Nombre de tu hijo/a <span className="text-gray-400 font-normal">(opcional)</span>
-                    </label>
-                    <input placeholder="¿Cómo se llama?" className="input-field"
-                      value={child.name} onChange={e => setChild(c => ({ ...c, name: e.target.value }))} />
-                  </div>
-                  <div>
                     <label className="block text-sm font-medium text-deep-plum mb-2">Etapa de vida</label>
                     <div className="grid grid-cols-1 gap-2">
                       {AGE_STAGES.map(s => (
@@ -301,6 +296,43 @@ export default function Login() {
                       ))}
                     </div>
                   </div>
+
+                  {child.age_stage === 'embarazo' ? (
+                    <>
+                      <div className="bg-rose-50 rounded-2xl p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl">🤰</span>
+                          <div>
+                            <p className="font-semibold text-deep-plum text-sm">Datos del embarazo</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Opcionales — puedes completarlos más tarde.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          Nombre que le pondrán al bebé <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input placeholder="¿Ya tienen un nombre en mente?" className="input-field"
+                          value={child.name} onChange={e => setChild(c => ({ ...c, name: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          Fecha probable de parto <span className="text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <input type="date" className="input-field"
+                          value={child.due_date} onChange={e => setChild(c => ({ ...c, due_date: e.target.value }))} />
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                        Nombre de tu hijo/a <span className="text-gray-400 font-normal">(opcional)</span>
+                      </label>
+                      <input placeholder="¿Cómo se llama?" className="input-field"
+                        value={child.name} onChange={e => setChild(c => ({ ...c, name: e.target.value }))} />
+                    </div>
+                  )}
+
                   <div className="flex gap-3 pt-2">
                     <button type="button" onClick={() => setStep(1)} className="btn-secondary flex-1">← Atrás</button>
                     <button type="submit" className="btn-primary flex-1">Siguiente →</button>

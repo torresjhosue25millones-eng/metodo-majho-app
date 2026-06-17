@@ -211,58 +211,51 @@ export default function Dashboard() {
         )}
 
         {/* Continue modules */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-2xl text-deep-plum">Continúa tu camino</h2>
-            <Link to="/modulos" className="btn-ghost text-sm">Ver todos →</Link>
-          </div>
-          {(() => {
-            if (!firstChild) {
-              return (
-                <div className="card border-dashed border-2 border-rose-200 text-center py-10">
-                  <span className="text-4xl mb-3 block">👶</span>
-                  <p className="text-gray-500 mb-4">Agrega el perfil de tu hijo/a para ver tu módulo recomendado</p>
-                  <Link to="/perfil" className="btn-primary py-2 px-6 text-sm inline-block">Agregar hijo/a →</Link>
-                </div>
-              );
-            }
-            const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
-            const stageKey = STAGE_MAP[firstChild.age_stage] || firstChild.age_stage;
-            const mod = modules.find(m => m.age_range === stageKey || m.age_range === firstChild.age_stage);
-            if (!mod) {
-              return (
-                <div className="card border-dashed border-2 border-rose-200 text-center py-8">
-                  <p className="text-gray-500 mb-3">Completa la etapa de vida de {firstChild.name} en tu perfil</p>
-                  <Link to="/perfil" className="text-sm text-rose-500 font-medium hover:text-rose-700">Ir al perfil →</Link>
-                </div>
-              );
-            }
-            return (
-              <Link to={`/modulos/${mod.id}`} className="card-hover group block">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
-                    style={{ backgroundColor: mod.color + '20' }}>
-                    {mod.icon}
+        {firstChild && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-serif text-2xl text-deep-plum">Continúa tu camino</h2>
+              <Link to="/modulos" className="btn-ghost text-sm">Ver todos →</Link>
+            </div>
+            {(() => {
+              const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
+              const stageKey = STAGE_MAP[firstChild.age_stage] || firstChild.age_stage;
+              const mod = modules.find(m => m.age_range === stageKey || m.age_range === firstChild.age_stage);
+              if (!mod) {
+                return (
+                  <div className="card border-dashed border-2 border-rose-200 text-center py-8">
+                    <p className="text-gray-500 mb-3">Completa la etapa de vida de {firstChild.name} en tu perfil</p>
+                    <Link to="/perfil" className="text-sm text-rose-500 font-medium hover:text-rose-700">Ir al perfil →</Link>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: mod.color }}>
-                      {mod.age_label}
-                    </p>
-                    <h3 className="font-serif text-xl text-deep-plum group-hover:text-rose-600 transition-colors mb-1">
-                      {mod.title}
-                    </h3>
-                    <p className="text-sm text-gray-400 mb-3">{mod.subtitle}</p>
-                    <div className="bg-rose-100 rounded-full h-1.5 mb-1">
-                      <div className="h-1.5 rounded-full transition-all duration-700"
-                        style={{ width: `${mod.progress_pct}%`, backgroundColor: mod.color }} />
+                );
+              }
+              return (
+                <Link to={`/modulos/${mod.id}`} className="card-hover group block">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
+                      style={{ backgroundColor: mod.color + '20' }}>
+                      {mod.icon}
                     </div>
-                    <p className="text-xs text-gray-400">{mod.completed_lessons}/{mod.lessons_count} lecciones</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: mod.color }}>
+                        {mod.age_label}
+                      </p>
+                      <h3 className="font-serif text-xl text-deep-plum group-hover:text-rose-600 transition-colors mb-1">
+                        {mod.title}
+                      </h3>
+                      <p className="text-sm text-gray-400 mb-3">{mod.subtitle}</p>
+                      <div className="bg-rose-100 rounded-full h-1.5 mb-1">
+                        <div className="h-1.5 rounded-full transition-all duration-700"
+                          style={{ width: `${mod.progress_pct}%`, backgroundColor: mod.color }} />
+                      </div>
+                      <p className="text-xs text-gray-400">{mod.completed_lessons}/{mod.lessons_count} lecciones</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })()}
-        </div>
+                </Link>
+              );
+            })()}
+          </div>
+        )}
       </main>
       <Footer />
     </div>
