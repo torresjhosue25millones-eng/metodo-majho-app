@@ -42,6 +42,7 @@ export default function ModuleDetail() {
   const [activeLesson, setActiveLesson] = useState(null);
   const [activeTab, setActiveTab] = useState('lecciones');
   const [activeMonth, setActiveMonth] = useState(null);
+  const [activeTrimester, setActiveTrimester] = useState(1);
   const [completing, setCompleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +62,10 @@ export default function ModuleDetail() {
         setChildren(fetchedChildren);
         setMonthlyProgram(monthlyRes.data.months || []);
         const matching = findMatchingChild(fetchedChildren, modRes.data.module);
-        setActiveMonth(matching?.pregnancy_month || 1);
+        const currentMonth = matching?.pregnancy_month || 1;
+        setActiveMonth(currentMonth);
+        const months = monthlyRes.data.months || [];
+        setActiveTrimester(months.find(m => m.month === currentMonth)?.trimester || 1);
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -366,76 +370,160 @@ export default function ModuleDetail() {
               </div>
             ) : (
               <>
-                <div className="bg-gold-300/15 border border-gold-300/50 rounded-2xl px-4 py-3 mb-5 flex items-center gap-3 max-w-3xl">
+                <div className="bg-gold-300/15 border border-gold-300/50 rounded-2xl px-4 py-3 mb-5 flex items-center gap-3">
                   <span className="text-xl">📌</span>
                   <p className="text-sm text-gray-600">
                     Contenido de ejemplo — pronto será reemplazado por el contenido real del libro <em>Tu Embarazo Sagrado</em>.
                   </p>
                 </div>
 
-                <p className="text-sm text-rose-500 font-medium mb-4">
-                  🤰 Estás en el mes {matchingChild.pregnancy_month} de tu embarazo
-                </p>
-
-                <div className="grid grid-cols-3 sm:grid-cols-9 gap-2 mb-6 max-w-2xl">
-                  {monthlyProgram.map(m => {
-                    const unlocked = m.month <= matchingChild.pregnancy_month;
-                    const isActive = activeMonth === m.month;
-                    return (
-                      <button key={m.month}
-                        onClick={() => unlocked && setActiveMonth(m.month)}
-                        disabled={!unlocked}
-                        className={`rounded-xl py-3 text-sm font-bold transition-all border-2 flex flex-col items-center gap-0.5
-                          ${!unlocked ? 'border-gray-100 text-gray-300 bg-gray-50 cursor-not-allowed'
-                            : isActive ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 bg-white hover:border-rose-200'}`}
-                        style={unlocked && isActive ? { backgroundColor: module.color, borderColor: module.color } : {}}>
-                        <span>{unlocked ? m.month : '🔒'}</span>
-                        <span className="text-[10px] font-normal">mes</span>
-                      </button>
-                    );
-                  })}
+                {/* Header, en el mismo estilo que el Plan 30 días */}
+                <div className="border-2 rounded-3xl p-6 mb-6"
+                  style={{ borderColor: module.color + '40', background: `linear-gradient(135deg, ${module.color}10, ${module.color}25)` }}>
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-4">
+                      <span className="text-4xl">🌙</span>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Tu Camino del Embarazo</p>
+                        <h1 className="font-serif text-2xl font-bold" style={{ color: module.color }}>
+                          Mes {matchingChild.pregnancy_month} de 9
+                        </h1>
+                        <p className="text-gray-500 text-sm">
+                          {monthlyProgram.find(m => m.month === matchingChild.pregnancy_month)?.trimester_label}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="w-32 bg-white/60 rounded-full h-3 mb-1">
+                        <div className="h-3 rounded-full transition-all duration-700"
+                          style={{ width: `${Math.round((matchingChild.pregnancy_month / 9) * 100)}%`, backgroundColor: module.color }} />
+                      </div>
+                      <p className="text-xs text-gray-500">{matchingChild.pregnancy_month}/9 meses</p>
+                    </div>
+                  </div>
                 </div>
 
-                {(() => {
-                  const current = monthlyProgram.find(m => m.month === activeMonth);
-                  if (!current) return null;
-                  return (
-                    <div className="max-w-2xl space-y-4 animate-fade-in">
-                      <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">
-                        Mes {current.month} · {current.etapa} · {current.trimester_label}
-                      </p>
-
-                      <div className="bg-white rounded-2xl p-4 border-2 border-gray-100">
-                        <p className="text-xs font-bold uppercase tracking-wide text-gray-400 mb-1">🎧 Resumen en audio</p>
-                        <p className="text-deep-plum text-sm leading-relaxed">{current.audio_recap_label}</p>
-                      </div>
-
-                      <div className="bg-plum-50 rounded-2xl p-5 border border-plum-100 text-center">
-                        <p className="text-xs font-bold uppercase tracking-wide text-plum-500 mb-2">✨ Afirmación del mes</p>
-                        <p className="font-serif text-lg text-deep-plum italic">"{current.affirmation}"</p>
-                      </div>
-
-                      <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100">
-                        <p className="text-xs font-bold uppercase tracking-wide text-rose-500 mb-1">🧘 Meditación del mes</p>
-                        <p className="font-semibold text-deep-plum text-sm mb-1">{current.meditation_title}</p>
-                        <p className="text-gray-600 text-sm leading-relaxed">{current.meditation_text}</p>
-                      </div>
-
-                      <div className="rounded-2xl p-4 border border-gold-300/50" style={{ backgroundColor: '#F3E9CC' }}>
-                        <p className="text-xs font-bold uppercase tracking-wide text-gold-600 mb-1">💡 Píldora del mes</p>
-                        <p className="text-deep-plum text-sm leading-relaxed">{current.tip}</p>
-                      </div>
-
-                      <button onClick={() => setActiveTab('audio')}
-                        className="w-full flex items-center justify-between bg-white rounded-2xl p-4 border-2 border-gray-100 hover:border-rose-200 transition-all text-left">
-                        <span className="flex items-center gap-2 text-sm font-medium text-deep-plum">
-                          🎧 Ir al Audiolibro
-                        </span>
-                        <span className="text-rose-400 text-sm">→</span>
-                      </button>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Trimestres + meses */}
+                  <div className="lg:col-span-2">
+                    <div className="flex gap-2 mb-4 flex-wrap">
+                      {[1, 2, 3].map(tri => {
+                        const triMonths = monthlyProgram.filter(m => m.trimester === tri);
+                        if (triMonths.length === 0) return null;
+                        const unlockedCount = triMonths.filter(m => m.month <= matchingChild.pregnancy_month).length;
+                        return (
+                          <button key={tri} onClick={() => setActiveTrimester(tri)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all border-2
+                              ${activeTrimester === tri ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'}`}
+                            style={activeTrimester === tri ? { backgroundColor: module.color, borderColor: module.color } : {}}>
+                            {triMonths[0].trimester_label}
+                            <span className="ml-1.5 opacity-70 text-xs">({unlockedCount}/{triMonths.length})</span>
+                          </button>
+                        );
+                      })}
                     </div>
-                  );
-                })()}
+
+                    {monthlyProgram.filter(m => m.trimester === activeTrimester)[0]?.etapa && (
+                      <p className="text-sm font-medium text-gray-400 mb-3 uppercase tracking-wide">
+                        📌 {monthlyProgram.find(m => m.trimester === activeTrimester)?.etapa}
+                      </p>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {monthlyProgram.filter(m => m.trimester === activeTrimester).map(m => {
+                        const unlocked = m.month <= matchingChild.pregnancy_month;
+                        const isActive = activeMonth === m.month;
+                        return (
+                          <button key={m.month}
+                            onClick={() => unlocked && setActiveMonth(m.month)}
+                            disabled={!unlocked}
+                            className={`relative rounded-2xl p-4 text-left transition-all border-2 hover:shadow-md
+                              ${!unlocked ? 'bg-gray-50 border-gray-100 cursor-not-allowed'
+                                : isActive ? 'ring-2 ring-offset-2 bg-rose-50' : 'bg-white border-gray-100 hover:border-rose-200'}`}
+                            style={unlocked && isActive ? { borderColor: module.color } : {}}>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-bold text-gray-400">Mes {m.month}</span>
+                              {unlocked && m.month === matchingChild.pregnancy_month && <span className="text-xs">📍</span>}
+                            </div>
+                            <div className="text-2xl mb-1">{unlocked ? '🌙' : '🔒'}</div>
+                            <p className={`text-xs font-medium leading-tight line-clamp-2 ${unlocked ? 'text-deep-plum' : 'text-gray-300'}`}>
+                              {m.title}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Panel de detalle */}
+                  <div className="lg:col-span-1">
+                    {(() => {
+                      const current = monthlyProgram.find(m => m.month === activeMonth);
+                      const currentUnlocked = current && current.month <= matchingChild.pregnancy_month;
+                      if (!current || !currentUnlocked) {
+                        return (
+                          <div className="card text-center text-gray-400 py-10">
+                            <div className="text-4xl mb-3">👆</div>
+                            <p className="text-sm">Selecciona un mes desbloqueado para ver su contenido</p>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="card sticky top-20 animate-slide-up space-y-4">
+                          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">
+                            Mes {current.month} · {current.etapa} · {current.trimester_label}
+                          </p>
+
+                          <div className="bg-amber-50 rounded-xl p-3">
+                            <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">🎧 Resumen en audio</p>
+                            <p className="text-sm text-gray-700">{current.audio_recap_label}</p>
+                          </div>
+
+                          <div className="bg-plum-50 rounded-xl p-3 text-center">
+                            <p className="text-xs font-bold text-plum-500 uppercase tracking-wide mb-1">✨ Afirmación del mes</p>
+                            <p className="text-sm font-serif italic text-deep-plum">"{current.affirmation}"</p>
+                          </div>
+
+                          <div className="bg-rose-50 rounded-xl p-3">
+                            <p className="text-xs font-bold text-rose-500 uppercase tracking-wide mb-1">🧘 Meditación del mes</p>
+                            <p className="font-semibold text-deep-plum text-sm mb-1">{current.meditation_title}</p>
+                            <p className="text-gray-600 text-sm">{current.meditation_text}</p>
+                          </div>
+
+                          <div className="rounded-xl p-3" style={{ backgroundColor: '#F3E9CC' }}>
+                            <p className="text-xs font-bold text-gold-600 uppercase tracking-wide mb-1">💡 Píldora del mes</p>
+                            <p className="text-sm text-gray-700">{current.tip}</p>
+                          </div>
+
+                          <button onClick={() => setActiveTab('audio')}
+                            className="w-full mt-1 py-3 rounded-xl font-medium text-sm transition-all bg-white border-2 border-gray-100 hover:border-rose-200 flex items-center justify-between px-4">
+                            <span className="flex items-center gap-2 text-deep-plum">🎧 Ir al Audiolibro</span>
+                            <span className="text-rose-400">→</span>
+                          </button>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Stats */}
+                    <div className="card mt-4">
+                      <h3 className="font-semibold text-deep-plum text-sm mb-3">Tu progreso</h3>
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="bg-green-50 rounded-xl p-2">
+                          <p className="text-lg font-bold text-green-600">{matchingChild.pregnancy_month}</p>
+                          <p className="text-xs text-gray-400">Mes actual</p>
+                        </div>
+                        <div className="bg-rose-50 rounded-xl p-2">
+                          <p className="text-lg font-bold text-rose-500">{9 - matchingChild.pregnancy_month}</p>
+                          <p className="text-xs text-gray-400">Por vivir</p>
+                        </div>
+                        <div className="bg-amber-50 rounded-xl p-2">
+                          <p className="text-lg font-bold text-amber-600">{Math.round((matchingChild.pregnancy_month / 9) * 100)}%</p>
+                          <p className="text-xs text-gray-400">Avance</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>
