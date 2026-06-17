@@ -1,4 +1,5 @@
 const { initDb, nextId } = require('../database/init');
+const { Origin, Horoscope } = require('circular-natal-horoscope-js');
 
 function getChildren(req, res) {
   const db = initDb();
@@ -6,13 +7,39 @@ function getChildren(req, res) {
   res.json({ children: children.map(enrichChild) });
 }
 
-function addChild(req, res) {
+// Resolves a free-text birth place to coordinates so the Ascendant can be calculated
+// precisely (it is very sensitive to longitude/timezone). Never throws — a failed or
+// slow lookup just means we fall back to the rough longitude-0 approximation later.
+async function geocodePlace(query) {
+  if (!query) return null;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'MetodoMAJHO/1.0 (+https://metodo.majhogroup.com)' },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    const results = await res.json();
+    if (!results.length) return null;
+    return { lat: parseFloat(results[0].lat), lon: parseFloat(results[0].lon) };
+  } catch {
+    return null;
+  }
+}
+
+async function addChild(req, res) {
   const {
     name, age_stage,
     birth_date, birth_time, birth_place,
     mother_name, mother_birth_date, mother_birth_time, mother_birth_place, mother_birth_country,
   } = req.body;
   if (!name) return res.status(400).json({ error: 'El nombre del niño/a es requerido' });
+
+  const motherPlaceQuery = [mother_birth_place, mother_birth_country].filter(Boolean).join(', ') || null;
+  const [birthGeo, motherGeo] = await Promise.all([
+    geocodePlace(birth_place),
+    geocodePlace(motherPlaceQuery),
+  ]);
 
   const db = initDb();
   const child = {
@@ -23,11 +50,15 @@ function addChild(req, res) {
     birth_date: birth_date || null,
     birth_time: birth_time || null,
     birth_place: birth_place || null,
+    birth_lat: birthGeo?.lat ?? null,
+    birth_lon: birthGeo?.lon ?? null,
     mother_name: mother_name || null,
     mother_birth_date: mother_birth_date || null,
     mother_birth_time: mother_birth_time || null,
     mother_birth_place: mother_birth_place || null,
     mother_birth_country: mother_birth_country || null,
+    mother_birth_lat: motherGeo?.lat ?? null,
+    mother_birth_lon: motherGeo?.lon ?? null,
     vibration_type: null,
     created_at: new Date().toISOString(),
   };
@@ -35,7 +66,7 @@ function addChild(req, res) {
   res.status(201).json({ child: enrichChild(child) });
 }
 
-function updateChild(req, res) {
+async function updateChild(req, res) {
   const {
     name, age_stage, vibration_type,
     birth_date, birth_time, birth_place,
@@ -46,18 +77,30 @@ function updateChild(req, res) {
   const child = db.get('children').find({ id, user_id: req.userId }).value();
   if (!child) return res.status(404).json({ error: 'Niño/a no encontrado' });
 
+  // Only re-geocode when the place actually changed in this request, so routine
+  // updates (e.g. just the name or vibration_type) don't trigger a network call.
+  const birthGeo = birth_place !== undefined ? await geocodePlace(birth_place) : null;
+  const motherPlaceChanged = mother_birth_place !== undefined || mother_birth_country !== undefined;
+  const motherGeo = motherPlaceChanged
+    ? await geocodePlace([
+        mother_birth_place !== undefined ? mother_birth_place : child.mother_birth_place,
+        mother_birth_country !== undefined ? mother_birth_country : child.mother_birth_country,
+      ].filter(Boolean).join(', ') || null)
+    : null;
+
   db.get('children').find({ id }).assign({
     ...(name && { name }),
     ...(age_stage && { age_stage }),
     ...(vibration_type && { vibration_type }),
     ...(birth_date !== undefined && { birth_date }),
     ...(birth_time !== undefined && { birth_time }),
-    ...(birth_place !== undefined && { birth_place }),
+    ...(birth_place !== undefined && { birth_place, birth_lat: birthGeo?.lat ?? null, birth_lon: birthGeo?.lon ?? null }),
     ...(mother_name !== undefined && { mother_name }),
     ...(mother_birth_date !== undefined && { mother_birth_date }),
     ...(mother_birth_time !== undefined && { mother_birth_time }),
     ...(mother_birth_place !== undefined && { mother_birth_place }),
     ...(mother_birth_country !== undefined && { mother_birth_country }),
+    ...(motherPlaceChanged && { mother_birth_lat: motherGeo?.lat ?? null, mother_birth_lon: motherGeo?.lon ?? null }),
     updated_at: new Date().toISOString(),
   }).write();
 
@@ -105,6 +148,15 @@ function getSolarSign(birthDate) {
   return { sign: 'Sagitario', emoji: '♐', element: 'Fuego' };
 }
 
+const ZODIAC_SIGNS = [
+  { sign: 'Aries', emoji: '♈' }, { sign: 'Tauro', emoji: '♉' },
+  { sign: 'Géminis', emoji: '♊' }, { sign: 'Cáncer', emoji: '♋' },
+  { sign: 'Leo', emoji: '♌' }, { sign: 'Virgo', emoji: '♍' },
+  { sign: 'Libra', emoji: '♎' }, { sign: 'Escorpio', emoji: '♏' },
+  { sign: 'Sagitario', emoji: '♐' }, { sign: 'Capricornio', emoji: '♑' },
+  { sign: 'Acuario', emoji: '♒' }, { sign: 'Piscis', emoji: '♓' },
+];
+
 function getLunarSign(birthDate) {
   if (!birthDate) return null;
   // Moon ecliptic longitude at J2000.0 ≈ 218.3°; moves ~13.176°/day
@@ -113,49 +165,63 @@ function getLunarSign(birthDate) {
   const daysSince = (birthMs - refMs) / (1000 * 60 * 60 * 24);
   let moonLon = (218.3 + 13.176 * daysSince) % 360;
   if (moonLon < 0) moonLon += 360;
-  const signs = [
-    { sign: 'Aries', emoji: '♈' }, { sign: 'Tauro', emoji: '♉' },
-    { sign: 'Géminis', emoji: '♊' }, { sign: 'Cáncer', emoji: '♋' },
-    { sign: 'Leo', emoji: '♌' }, { sign: 'Virgo', emoji: '♍' },
-    { sign: 'Libra', emoji: '♎' }, { sign: 'Escorpio', emoji: '♏' },
-    { sign: 'Sagitario', emoji: '♐' }, { sign: 'Capricornio', emoji: '♑' },
-    { sign: 'Acuario', emoji: '♒' }, { sign: 'Piscis', emoji: '♓' },
-  ];
-  return signs[Math.floor(moonLon / 30) % 12];
+  return ZODIAC_SIGNS[Math.floor(moonLon / 30) % 12];
 }
 
-function getAscendant(birthDate, birthTime) {
-  if (!birthDate || !birthTime) return null;
-  const [h, min] = birthTime.split(':').map(Number);
-  const birthHour = h + min / 60;
+// Rough fallback used only when we don't have a geocoded birth place yet (assumes
+// 0° longitude). The Ascendant shifts about one sign every two hours, so this is
+// just a placeholder until geocodePlace() resolves real coordinates for the child.
+function getApproximateAscendant(birthDate, birthHour) {
   const refMs = new Date('2000-01-01T12:00:00Z').getTime();
   const birthMs = new Date(birthDate + 'T00:00:00Z').getTime();
   const daysSince = (birthMs - refMs) / (1000 * 60 * 60 * 24);
-  // Simplified sidereal time (0° longitude, ~10°N latitude for Latin America)
   const gmst = (100.4606184 + 36000.77004 * (daysSince / 36525)) % 360;
   let lst = (gmst + birthHour * 15) % 360;
   if (lst < 0) lst += 360;
-  const signs = [
-    { sign: 'Aries', emoji: '♈' }, { sign: 'Tauro', emoji: '♉' },
-    { sign: 'Géminis', emoji: '♊' }, { sign: 'Cáncer', emoji: '♋' },
-    { sign: 'Leo', emoji: '♌' }, { sign: 'Virgo', emoji: '♍' },
-    { sign: 'Libra', emoji: '♎' }, { sign: 'Escorpio', emoji: '♏' },
-    { sign: 'Sagitario', emoji: '♐' }, { sign: 'Capricornio', emoji: '♑' },
-    { sign: 'Acuario', emoji: '♒' }, { sign: 'Piscis', emoji: '♓' },
-  ];
-  return signs[Math.floor(((lst + 180) % 360) / 30) % 12];
+  return ZODIAC_SIGNS[Math.floor(((lst + 180) % 360) / 30) % 12];
+}
+
+function getAscendant(birthDate, birthTime, lat, lon) {
+  if (!birthDate || !birthTime) return null;
+  const [h, min] = birthTime.split(':').map(Number);
+
+  if (lat != null && lon != null) {
+    try {
+      const [year, month, day] = birthDate.split('-').map(Number);
+      const origin = new Origin({
+        year, month: month - 1, date: day, hour: h, minute: min,
+        latitude: lat, longitude: lon,
+      });
+      const horoscope = new Horoscope({
+        origin,
+        houseSystem: 'whole-sign',
+        zodiac: 'tropical',
+        aspectPoints: [],
+        aspectWithPoints: [],
+        aspectTypes: [],
+      });
+      const degrees = horoscope.Ascendant.ChartPosition.Ecliptic.DecimalDegrees;
+      return ZODIAC_SIGNS[Math.floor(degrees / 30) % 12];
+    } catch {
+      // fall through to the approximation below
+    }
+  }
+
+  return getApproximateAscendant(birthDate, h + min / 60);
 }
 
 function enrichChild(child) {
   const isEmbarazo = child.age_stage === 'embarazo';
   const chartDate = isEmbarazo ? child.mother_birth_date : child.birth_date;
   const chartTime = isEmbarazo ? child.mother_birth_time : child.birth_time;
+  const chartLat = isEmbarazo ? child.mother_birth_lat : child.birth_lat;
+  const chartLon = isEmbarazo ? child.mother_birth_lon : child.birth_lon;
   return {
     ...child,
     astral_chart: chartDate ? {
       solar: getSolarSign(chartDate),
       lunar: getLunarSign(chartDate),
-      ascendant: getAscendant(chartDate, chartTime),
+      ascendant: getAscendant(chartDate, chartTime, chartLat, chartLon),
       is_mother: isEmbarazo,
     } : null,
   };

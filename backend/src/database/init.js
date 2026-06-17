@@ -27,10 +27,13 @@ function initDb() {
     emergency_uses: [],
   }).write();
 
+  // Only seed when the database is genuinely empty (first boot). Previous versions of
+  // this check also force-reseeded on schema-shape heuristics, which silently overwrote
+  // real production module/lesson content (including manually curated book content) on
+  // every deploy where that heuristic happened to match. Do not reintroduce that pattern —
+  // db.json itself is the source of truth once seeded; use a real migration if needed.
   const existingModules = db.get('modules').value();
-  const needsReseed = existingModules.length === 0 || existingModules[0].letter !== undefined || existingModules[0].age_range === '3-7';
-  if (needsReseed) {
-    db.set('modules', []).set('lessons', []).write();
+  if (existingModules.length === 0) {
     seed();
   }
   return db;
@@ -38,11 +41,11 @@ function initDb() {
 
 function seed() {
   const modules = [
-    { id: 1, title: 'Embarazo Sagrado', subtitle: 'El portal de una nueva alma', description: 'El embarazo es una de las experiencias más sagradas del universo. Tu cuerpo es el templo por donde llega un alma a esta dimensión. Aprende a vivir cada etapa con consciencia, amor y espiritualidad profunda.', age_range: 'embarazo', age_label: 'Embarazo', color: '#C9748A', icon: '🤰', order_num: 1, lessons_count: 5 },
-    { id: 2, title: 'Tu Bebé Canal de Abundancia', subtitle: '0 a 2 años · El amor hecho cuerpo', description: 'Tu bebé llegó como un canal puro de amor divino. Estos primeros años son los más sagrados para el vínculo. Aprende a leer su alma, respetar su ritmo y crear una base espiritual sólida.', age_range: '0-2', age_label: '0 a 2 años', color: '#7CB9A8', icon: '👶', order_num: 2, lessons_count: 5 },
-    { id: 3, title: 'Despertar de la Infancia', subtitle: '2 a 6 años · La magia se despierta', description: 'Entre los 2 y 6 años el niño vive en un estado de consciencia expandida donde la magia y la realidad se funden. Es la etapa más espiritual de la vida. Aprende a honrar y acompañar este despertar.', age_range: '2-6', age_label: '2 a 6 años', color: '#9B8EC4', icon: '🌱', order_num: 3, lessons_count: 5 },
-    { id: 4, title: 'Pequeños Magos de Luz', subtitle: '6 a 12 años · Los dones despiertan', description: 'Entre los 6 y 12 años los niños conscientes comienzan a manifestar sus dones espirituales únicos. Es el momento de acompañar su identidad sagrada, sus talentos y su propósito de vida.', age_range: '6-12', age_label: '6 a 12 años', color: '#D4AF37', icon: '✨', order_num: 4, lessons_count: 5 },
-    { id: 5, title: 'Adolescentes Nueva Tierra', subtitle: '12 a 17 años · La misión se revela', description: 'Los adolescentes conscientes de hoy son los constructores de la Nueva Tierra. Aprende a acompañar esta etapa transformadora desde la consciencia y el amor.', age_range: '12-17', age_label: '12 a 17 años', color: '#3D1C32', icon: '🌟', order_num: 5, lessons_count: 5 },
+    { id: 1, title: 'Embarazo Sagrado', subtitle: 'El portal de una nueva alma', description: 'El embarazo es una de las experiencias más sagradas del universo. Tu cuerpo es el templo por donde llega un alma a esta dimensión. Aprende a vivir cada etapa con consciencia, amor y espiritualidad profunda.', age_range: 'embarazo', age_label: 'Embarazo', color: '#C9748A', icon: '🤰', order_num: 1, lessons_count: 5, audiobook_url: null },
+    { id: 2, title: 'Tu Bebé Canal de Abundancia', subtitle: '0 a 2 años · El amor hecho cuerpo', description: 'Tu bebé llegó como un canal puro de amor divino. Estos primeros años son los más sagrados para el vínculo. Aprende a leer su alma, respetar su ritmo y crear una base espiritual sólida.', age_range: '0-2', age_label: '0 a 2 años', color: '#7CB9A8', icon: '👶', order_num: 2, lessons_count: 5, audiobook_url: null },
+    { id: 3, title: 'Despertar de la Infancia', subtitle: '2 a 6 años · La magia se despierta', description: 'Entre los 2 y 6 años el niño vive en un estado de consciencia expandida donde la magia y la realidad se funden. Es la etapa más espiritual de la vida. Aprende a honrar y acompañar este despertar.', age_range: '2-6', age_label: '2 a 6 años', color: '#9B8EC4', icon: '🌱', order_num: 3, lessons_count: 5, audiobook_url: null },
+    { id: 4, title: 'Pequeños Magos de Luz', subtitle: '6 a 12 años · Los dones despiertan', description: 'Entre los 6 y 12 años los niños conscientes comienzan a manifestar sus dones espirituales únicos. Es el momento de acompañar su identidad sagrada, sus talentos y su propósito de vida.', age_range: '6-12', age_label: '6 a 12 años', color: '#D4AF37', icon: '✨', order_num: 4, lessons_count: 5, audiobook_url: null },
+    { id: 5, title: 'Adolescentes Nueva Tierra', subtitle: '12 a 17 años · La misión se revela', description: 'Los adolescentes conscientes de hoy son los constructores de la Nueva Tierra. Aprende a acompañar esta etapa transformadora desde la consciencia y el amor.', age_range: '12-17', age_label: '12 a 17 años', color: '#3D1C32', icon: '🌟', order_num: 5, lessons_count: 5, audiobook_url: null },
   ];
 
   const lessonsData = {
