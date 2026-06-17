@@ -35,7 +35,7 @@
       "color": "#C9748A",
       "icon": "🤰",
       "order_num": 1,
-      "lessons_count": 5
+      "lessons_count": 24
     },
     {
       "id": 2,
@@ -91,44 +91,268 @@
       "id": 1,
       "module_id": 1,
       "order_num": 1,
-      "title": "Tu Embarazo como Iniciación Espiritual",
-      "content": "El embarazo no es solo un proceso biológico: es una iniciación sagrada. Desde el momento de la concepción, un alma eligió venir a través de ti. Esta elección no fue al azar. Existe un contrato sagrado entre tú y ese ser. En esta lección exploraremos cómo vivir el embarazo como el camino espiritual más poderoso que puede existir, llenando cada semana de consciencia, gratitud y conexión profunda con el alma que llega.",
-      "duration_min": 20
+      "title": "La intención antes de la creación",
+      "duration_min": 20,
+      "content": "Antes de que un alma decida llegar, existe un instante invisible donde tu intención se convierte en la primera invitación. La concepción no comienza en el cuerpo, comienza en el corazón: en la claridad de tu deseo, en la apertura de tu energía, en la decisión consciente de recibir vida. En esta lección aprenderás a preparar tu intención más profunda antes de la creación, reconociendo que ese gesto interior es ya un acto sagrado de co-creación con el universo.",
+      "practice": "Intención Consciente de Concepción: un ejercicio guiado para nombrar, sentir y anclar tu deseo de traer un alma a este mundo.",
+      "affirmation": "Estoy aquí, con el corazón abierto, para recibir a un alma de luz.",
+      "ritual": null
     },
     {
       "id": 2,
       "module_id": 1,
       "order_num": 2,
-      "title": "Conectando con el Alma que Llega",
-      "content": "Tu bebé ya te escucha, ya te siente, ya te ama. Desde las primeras semanas, existe una comunicación sutil entre su alma y la tuya. Aprende las prácticas de conexión intrauterina: la meditación de bienvenida, las conversaciones sagradas con tu vientre, la música como puente de amor. Esta conexión temprana es el fundamento de un vínculo que durará toda la vida.",
-      "duration_min": 18
+      "title": "Neurociencia del deseo — Cómo tu mente moldea la concepción",
+      "duration_min": 15,
+      "content": "Tus pensamientos no son solo ideas: son señales que tu cuerpo escucha y obedece. La neurociencia confirma lo que las tradiciones espirituales siempre supieron: el estrés y la duda repetida pueden cerrar las puertas de la fertilidad, mientras que la calma y el deseo claro las abren. En esta lección comprenderás cómo tu mente moldea, literalmente, el terreno donde la vida puede germinar.",
+      "practice": "Reprogramación Mental: identifica y transforma las creencias limitantes sobre tu fertilidad. Journaling: ¿Qué pensamientos tengo sobre mi fertilidad?",
+      "affirmation": "Mi mente es una aliada fértil; mis pensamientos preparan el camino para la vida.",
+      "ritual": null
     },
     {
       "id": 3,
       "module_id": 1,
       "order_num": 3,
-      "title": "El Cuerpo como Templo Sagrado",
-      "content": "Durante el embarazo, tu cuerpo se convierte en el templo más sagrado del universo: el hogar de un alma nueva. Honrar este templo es honrar a quien lo habita. Aprende a alimentarte con consciencia, a mover tu cuerpo con gratitud, a descansar como práctica espiritual y a establecer rituales de amor hacia tu vientre sagrado cada día.",
-      "duration_min": 15
+      "title": "Purificación energética — Rituales, plantas y limpieza emocional",
+      "duration_min": 20,
+      "content": "Antes de recibir una nueva vida, es sabio soltar lo que ya no te sirve: cargas emocionales, ciclos repetidos, energías heredadas. Las plantas, el fuego y el agua han sido durante siglos aliados de las mujeres que se preparan para la maternidad, ayudándolas a limpiar el cuerpo, la mente y el espíritu. En esta lección realizarás una purificación energética profunda para abrir espacio sagrado a la nueva alma que llegará.",
+      "practice": "Limpieza emocional guiada: reconoce y libera memorias y emociones que ya no necesitas cargar.",
+      "affirmation": "Suelto lo viejo con gratitud y abro espacio sagrado para la nueva vida.",
+      "ritual": "Ritual de fuego para soltar lo viejo. Baño ritual de limpieza con plantas purificadoras."
     },
     {
       "id": 4,
       "module_id": 1,
       "order_num": 4,
-      "title": "Preparando el Nido Consciente",
-      "content": "El espacio físico que preparas para tu bebé es una extensión de tu amor. Más allá de la decoración, existe una preparación energética y espiritual del hogar. Aprende a limpiar la energía del espacio, a llenar el cuarto del bebé con intención sagrada, a crear rituales de bienvenida y a establecer el nido como un santuario de amor donde ese ser podrá florecer.",
-      "duration_min": 15
+      "title": "Abriendo el canal de abundancia — Visualizaciones y afirmaciones fértiles",
+      "duration_min": 15,
+      "content": "La abundancia no es solo material: es también la capacidad de tu cuerpo y tu energía de recibir vida sin resistencia. Visualizar conscientemente tu fertilidad, sentirla en el cuerpo y nombrarla en voz alta son formas poderosas de abrir ese canal. En esta lección trabajarás con visualizaciones y afirmaciones diseñadas para sintonizar tu energía con la abundancia fértil.",
+      "practice": "Visualización \"Yo Recibo Vida\": un recorrido guiado para sentir tu cuerpo como un canal abierto y fértil. Afirmaciones fértiles repetidas con intención cada día.",
+      "affirmation": "Mi cuerpo es fértil, mi vida es abundante, y estoy lista para recibir.",
+      "ritual": null
     },
     {
       "id": 5,
       "module_id": 1,
       "order_num": 5,
-      "title": "El Parto como Portal Sagrado",
-      "content": "El parto es uno de los portales más poderosos que existen. Ya sea vaginal, por cesárea, en casa o en hospital: es un momento de magia cósmica donde un alma cruza el velo para llegar a este plano. Aprende a preparar tu mente, cuerpo y alma para este momento sagrado, sabiendo que estás siendo guiada por algo más grande que tú.",
-      "duration_min": 22
+      "title": "La primera conexión — El alma del bebé llega",
+      "duration_min": 20,
+      "content": "Desde el instante de la concepción, una nueva alma comienza a tejer su vínculo contigo, mucho antes de que tu mente lo asimile del todo. Esa primera conexión es sutil, pero real: un puente de luz que se forma entre dos consciencias. En esta lección aprenderás a reconocer y nutrir esa primera comunicación con el alma que ha elegido llegar a través de ti.",
+      "practice": "Meditación del puente de luz: una práctica para sentir y fortalecer la conexión con el alma de tu bebé. Escribe una carta al alma de tu bebé, dándole la bienvenida con tus propias palabras.",
+      "affirmation": "Te siento llegar, pequeña alma; aquí está mi corazón, abierto para ti.",
+      "ritual": null
     },
     {
       "id": 6,
+      "module_id": 1,
+      "order_num": 6,
+      "title": "Cambios emocionales — Comprender tu neuroquímica desde el amor",
+      "duration_min": 15,
+      "content": "Las olas emocionales del primer trimestre no son un defecto del proceso: son la huella de una revolución hormonal y energética profunda que prepara tu cuerpo y tu alma para la maternidad. Comprender la neuroquímica que sostiene estos cambios te permite vivirlos desde la compasión en lugar del juicio. En esta lección aprenderás a recibir tus emociones como mensajeras, no como enemigas.",
+      "practice": "Respiración de anclaje emocional: una técnica breve para regresar a la calma en medio de la tormenta hormonal. Journaling emocional: nombra lo que sientes sin juzgarlo.",
+      "affirmation": "Mis emociones son sabias; las acojo con amor y sin juicio.",
+      "ritual": null
+    },
+    {
+      "id": 7,
+      "module_id": 1,
+      "order_num": 7,
+      "title": "Diario de consciencia — Escritura como puente entre mundos",
+      "duration_min": 15,
+      "content": "Escribir durante el embarazo es mucho más que registrar síntomas y fechas: es crear un puente entre tu mundo interior y el alma que está llegando. Cada palabra escrita con presencia se convierte en un hilo de luz que conecta tu consciencia con la de tu bebé. En esta lección establecerás tu propio diario de consciencia gestante.",
+      "practice": "Práctica diaria de escritura sagrada: dedica unos minutos cada día para registrar lo que sientes, sueñas e intuyes durante este embarazo.",
+      "affirmation": "Cada palabra que escribo es un puente de amor entre mi alma y la de mi bebé.",
+      "ritual": null
+    },
+    {
+      "id": 8,
+      "module_id": 1,
+      "order_num": 8,
+      "title": "La abundancia en el cuerpo — Alimentación consciente y ritual",
+      "duration_min": 20,
+      "content": "Alimentarte durante el embarazo es un acto doblemente sagrado: nutres tu cuerpo y, a la vez, el templo donde habita una nueva vida. Comer con consciencia, gratitud y presencia transforma cada comida en un ritual de abundancia compartida. En esta lección aprenderás a convertir la alimentación en una práctica espiritual de nutrición mutua.",
+      "practice": "Afirmaciones de nutrición antes de cada comida, agradeciendo el alimento que nutre a ambos.",
+      "affirmation": "Mi cuerpo recibe abundancia y la transforma en vida para los dos.",
+      "ritual": "Ritual de abundancia corporal: bendice tu comida y tu vientre antes de cada comida principal."
+    },
+    {
+      "id": 9,
+      "module_id": 1,
+      "order_num": 9,
+      "title": "Vibración Materna — Lo que sientes, lo nutre",
+      "duration_min": 20,
+      "content": "Tu bebé no solo recibe nutrientes a través del cordón: también recibe tu vibración emocional, tus pensamientos y tu estado energético. Lo que sientes se convierte en el ambiente interno donde tu hijo o hija se está formando. En esta lección aprenderás a sintonizar conscientemente tu vibración materna como un acto de amor y cuidado profundo.",
+      "practice": "Meditaciones de conexión para elevar tu estado emocional varias veces al día.",
+      "affirmation": "Lo que siento nutre a mi bebé; elijo sintonizar mi vibración con amor.",
+      "ritual": "Sintoniza tu vibración: una breve pausa consciente para alinear tu energía antes de comenzar el día."
+    },
+    {
+      "id": 10,
+      "module_id": 1,
+      "order_num": 10,
+      "title": "Comunicación energética con el bebé",
+      "duration_min": 15,
+      "content": "Tu bebé escucha, siente y reconoce tu voz mucho antes de nacer. La comunicación energética con él o ella se construye en la cotidianidad: hablarle, cantarle, tocarte el vientre con intención. En esta lección descubrirás cómo establecer un canal de comunicación diaria que fortalezca el vínculo desde el útero.",
+      "practice": "Hablarle y cantarle al bebé cada día, en voz alta o en silencio interior, compartiendo tu mundo con él o ella.",
+      "affirmation": "Mi voz y mi amor llegan a ti; ya estamos conectados, pequeño/a.",
+      "ritual": "Ritual para la comunicación diaria: dedica un momento fijo del día para conversar con tu bebé."
+    },
+    {
+      "id": 11,
+      "module_id": 1,
+      "order_num": 11,
+      "title": "El arte de visualizar — Cocreando juntos su llegada",
+      "duration_min": 20,
+      "content": "Visualizar conscientemente la llegada de tu bebé es una forma de cocreación: imaginas, sientes y preparas energéticamente el camino que recorrerán juntos. No se trata de controlar el resultado, sino de alinear tu energía con la confianza y la claridad. En esta lección practicarás el arte de visualizar su llegada paso a paso.",
+      "practice": "Visualización consciente paso a paso: imagina el nacimiento que deseas, sintiendo cada detalle con calma y confianza.",
+      "affirmation": "Cocreo con mi bebé la llegada perfecta para los dos.",
+      "ritual": null
+    },
+    {
+      "id": 12,
+      "module_id": 1,
+      "order_num": 12,
+      "title": "El cuerpo se expande, el alma florece",
+      "duration_min": 15,
+      "content": "A medida que tu cuerpo se expande para dar espacio a la vida que crece, tu alma también se transforma y florece. El segundo trimestre invita al movimiento consciente: honrar el cuerpo cambiante sin juicio, moverlo con gratitud y permitir que las emociones fluyan. En esta lección aprenderás prácticas suaves para acompañar esta expansión física y espiritual.",
+      "practice": "Movimientos conscientes y yoga prenatal suave. Journaling emocional sobre los cambios que vas sintiendo en tu cuerpo y tu alma.",
+      "affirmation": "Mi cuerpo se expande con gracia; mi alma florece con cada día que pasa.",
+      "ritual": null
+    },
+    {
+      "id": 13,
+      "module_id": 1,
+      "order_num": 13,
+      "title": "El umbral del nacimiento — Reconocer el portal sagrado",
+      "duration_min": 20,
+      "content": "El tercer trimestre te acerca al umbral más sagrado del embarazo: el nacimiento. Reconocer este momento como un portal, y no solo como un evento médico, cambia profundamente la forma en que lo vives y lo recibes. En esta lección te prepararás energética y espiritualmente para cruzar ese umbral junto a tu bebé.",
+      "practice": "Ritual de conexión con el portal: una meditación para reconocer y honrar la proximidad del nacimiento.",
+      "affirmation": "Me acerco al umbral sagrado con confianza; estoy lista para cruzarlo.",
+      "ritual": "Manifiesto de parto sagrado: escribe con tus propias palabras cómo deseas vivir el nacimiento de tu hijo/a."
+    },
+    {
+      "id": 14,
+      "module_id": 1,
+      "order_num": 14,
+      "title": "El útero sabio — Fisiología, neurociencia y poder espiritual",
+      "duration_min": 15,
+      "content": "Tu útero es mucho más que un órgano: es un centro de sabiduría física, energética y espiritual que sabe exactamente cómo dar vida. Comprender su fisiología y su poder simbólico te ayuda a confiar plenamente en su inteligencia natural. En esta lección honrarás a tu útero como guía sabia de este proceso.",
+      "practice": "Meditación de útero luminoso: visualiza tu útero como una fuente de luz, sabiduría y fuerza. Journaling uterino: dialoga con tu útero y escucha lo que tiene para decirte.",
+      "affirmation": "Mi útero es sabio; confío plenamente en su poder e inteligencia.",
+      "ritual": null
+    },
+    {
+      "id": 15,
+      "module_id": 1,
+      "order_num": 15,
+      "title": "El parto como acto de abundancia y confianza",
+      "duration_min": 20,
+      "content": "El parto, en cualquiera de sus formas, es un acto profundo de abundancia: el cuerpo entrega vida con una generosidad que no conoce comparación. Cultivar la confianza en este proceso es el regalo más valioso que puedes darte antes de dar a luz. En esta lección fortalecerás esa confianza a través de la visualización y la repetición consciente de mantras.",
+      "practice": "Visualización del canal de luz: imagina el camino que tu bebé recorrerá hacia el mundo, lleno de luz y apoyo. Repite mantras de confianza durante el día para anclar la calma antes del parto.",
+      "affirmation": "Confío en mi cuerpo, confío en el proceso, confío en la vida que me atraviesa.",
+      "ritual": null
+    },
+    {
+      "id": 16,
+      "module_id": 1,
+      "order_num": 16,
+      "title": "Preparativos sagrados — Rituales, entorno y energía",
+      "duration_min": 15,
+      "content": "Así como preparas la cuna y la ropa de tu bebé, también es importante preparar el entorno energético donde nacerá. Limpiar el espacio, definir intenciones claras y rodearte de energías que te sostengan son parte esencial de los preparativos sagrados. En esta lección crearás tu propia ceremonia de preparación para el nacimiento.",
+      "practice": "Baño de purificación previo al parto, para soltar tensiones y miedos acumulados.",
+      "affirmation": "Mi entorno está listo, mi energía está lista, mi cuerpo está listo para recibir a mi bebé.",
+      "ritual": "Ceremonia de intención: reúnete contigo misma o con tus seres queridos para declarar tu intención de parto sagrado."
+    },
+    {
+      "id": 17,
+      "module_id": 1,
+      "order_num": 17,
+      "title": "El instante sagrado — Presencia en el nacimiento",
+      "duration_min": 20,
+      "content": "El nacimiento ocurre en un instante que no se repite jamás: el cruce de un alma desde un mundo a otro. Mantenerte presente, en la medida de lo posible, te permite vivir ese instante sagrado con plenitud, más allá del dolor o la intensidad física. En esta lección explorarás herramientas de presencia para habitar plenamente el momento del parto.",
+      "practice": "Mantra sagrado de parto. Prácticas de presencia: técnicas de anclaje en el cuerpo y la respiración para sostenerte durante el trabajo de parto.",
+      "affirmation": "Estoy presente en este instante sagrado; mi cuerpo sabe cómo hacerlo.",
+      "ritual": null
+    },
+    {
+      "id": 18,
+      "module_id": 1,
+      "order_num": 18,
+      "title": "Conexión divina — Madre y bebé como un solo corazón",
+      "duration_min": 15,
+      "content": "Durante el nacimiento, madre y bebé laten, por un instante, casi como un solo corazón. Esa conexión divina es el eco final de los nueve meses de vínculo construido en el vientre. En esta lección honrarás esa unidad profunda entre tu cuerpo, tu alma y la de tu bebé en el momento de nacer.",
+      "practice": "Respiración sincronizada: imagina tu respiración y la de tu bebé moviéndose como una sola onda de luz.",
+      "affirmation": "Somos un solo corazón latiendo juntos en este instante eterno.",
+      "ritual": "Baño de luz: una visualización para envolver a ti y a tu bebé en una misma luz protectora."
+    },
+    {
+      "id": 19,
+      "module_id": 1,
+      "order_num": 19,
+      "title": "El alma nace también — La madre se transforma",
+      "duration_min": 20,
+      "content": "Cuando un bebé nace, también nace una madre nueva: una mujer que cruza su propio umbral de transformación. Reconocer este renacimiento personal es tan importante como celebrar la llegada del bebé. En esta lección honrarás tu propia metamorfosis espiritual al convertirte en madre.",
+      "practice": "Espacio de reflexión guiada para reconocer y celebrar la mujer en la que te has transformado.",
+      "affirmation": "Yo también nazco hoy; honro a la mujer nueva que soy.",
+      "ritual": "Ritual de renacimiento para la madre."
+    },
+    {
+      "id": 20,
+      "module_id": 1,
+      "order_num": 20,
+      "title": "El nacimiento como portal de abundancia y gratitud",
+      "duration_min": 15,
+      "content": "Cada nacimiento es una puerta de abundancia: la vida se multiplica, el amor se expande, la gratitud se vuelve inevitable. Cerrar este capítulo con un ritual de gratitud ayuda a integrar la inmensidad de lo vivido. En esta lección celebrarás el milagro del nacimiento desde el agradecimiento profundo.",
+      "practice": "Agradece en voz alta o por escrito todo lo vivido durante el embarazo y el parto.",
+      "affirmation": "Recibo este nacimiento como un portal de abundancia infinita; estoy profundamente agradecida.",
+      "ritual": "Ritual de gratitud después del nacimiento."
+    },
+    {
+      "id": 21,
+      "module_id": 1,
+      "order_num": 21,
+      "title": "El útero vacío, el corazón lleno — Cierre energético y emocional",
+      "duration_min": 20,
+      "content": "Después del nacimiento, el útero que albergó vida queda vacío, pero el corazón se llena de una forma que antes no conocías. Este contraste merece ser honrado con un cierre energético y emocional consciente. En esta lección realizarás un proceso de cierre que te ayude a transitar del embarazo al posparto con paz.",
+      "practice": "Meditación de reconexión uterina: un espacio para honrar a tu útero después de haber sostenido la vida.",
+      "affirmation": "Mi útero está vacío, pero mi corazón está lleno de amor.",
+      "ritual": "Baño de hierbas posparto para el cierre energético y la reparación física."
+    },
+    {
+      "id": 22,
+      "module_id": 1,
+      "order_num": 22,
+      "title": "El arte de sostenerte — Autocuidado como acto espiritual",
+      "duration_min": 15,
+      "content": "Sostener a un recién nacido requiere, primero, que alguien te sostenga a ti. El autocuidado en el posparto no es un lujo: es un acto espiritual necesario para que puedas seguir dando desde un lugar lleno y no vacío. En esta lección aprenderás pequeños rituales de cuidado que nutren tu cuerpo y tu alma de madre.",
+      "practice": "Micro-rituales de belleza interior: pequeños gestos diarios de cuidado personal que te reconecten contigo misma.",
+      "affirmation": "Merezco ser cuidada con la misma ternura con la que cuido a mi bebé.",
+      "ritual": "Tónico reconfortante posparto, preparado con intención de nutrición y descanso."
+    },
+    {
+      "id": 23,
+      "module_id": 1,
+      "order_num": 23,
+      "title": "Reconexión con tu esencia — Volver a ti sin dejar de amar",
+      "duration_min": 20,
+      "content": "Ser madre no significa desaparecer: significa expandirte para incluir a otro ser sin perder tu propia esencia. Reconectar contigo misma después del nacimiento es un acto de amor tanto hacia ti como hacia tu hijo o hija. En esta lección crearás un espacio simbólico para reencontrarte con la mujer que eres ahora.",
+      "practice": "Journaling: La mujer que soy ahora. Escribe sobre cómo te sientes, qué cambió y qué permanece de ti.",
+      "affirmation": "Vuelvo a mí sin dejar de amar; soy madre y sigo siendo yo misma.",
+      "ritual": "Altar del reencuentro: crea un pequeño altar personal con objetos que representen quién eres ahora."
+    },
+    {
+      "id": 24,
+      "module_id": 1,
+      "order_num": 24,
+      "title": "Espiritualidad en la crianza — Sembrando luz en la infancia",
+      "duration_min": 15,
+      "content": "La espiritualidad en la crianza no se enseña con discursos, sino con presencia, rituales sencillos y amor cotidiano. Sembrar luz en la infancia de tu hijo o hija comienza con los pequeños gestos diarios que repites con intención. En esta lección integrarás la espiritualidad como una práctica natural y constante en la crianza diaria.",
+      "practice": "Afirmaciones diarias con el bebé, dichas en voz alta como parte de la rutina cotidiana.",
+      "affirmation": "Siembro luz cada día en la vida de mi hijo/a; la espiritualidad vive en lo cotidiano.",
+      "ritual": "Ritual de luz por las noches: una pequeña ceremonia antes de dormir para cerrar el día con amor y consciencia."
+    },
+    {
+      "id": 25,
       "module_id": 2,
       "order_num": 1,
       "title": "El Recién Nacido y su Sabiduría Innata",
@@ -136,7 +360,7 @@
       "duration_min": 18
     },
     {
-      "id": 7,
+      "id": 26,
       "module_id": 2,
       "order_num": 2,
       "title": "La Lactancia como Acto Sagrado",
@@ -144,7 +368,7 @@
       "duration_min": 15
     },
     {
-      "id": 8,
+      "id": 27,
       "module_id": 2,
       "order_num": 3,
       "title": "El Apego Consciente",
@@ -152,7 +376,7 @@
       "duration_min": 20
     },
     {
-      "id": 9,
+      "id": 28,
       "module_id": 2,
       "order_num": 4,
       "title": "Los Sueños del Bebé Espiritual",
@@ -160,7 +384,7 @@
       "duration_min": 12
     },
     {
-      "id": 10,
+      "id": 29,
       "module_id": 2,
       "order_num": 5,
       "title": "Los Primeros Pasos de la Consciencia",
@@ -168,7 +392,7 @@
       "duration_min": 15
     },
     {
-      "id": 11,
+      "id": 30,
       "module_id": 3,
       "order_num": 1,
       "title": "La Imaginación como Portal Espiritual",
@@ -176,7 +400,7 @@
       "duration_min": 18
     },
     {
-      "id": 12,
+      "id": 31,
       "module_id": 3,
       "order_num": 2,
       "title": "Las Rabietas como Maestras Espirituales",
@@ -184,7 +408,7 @@
       "duration_min": 20
     },
     {
-      "id": 13,
+      "id": 32,
       "module_id": 3,
       "order_num": 3,
       "title": "El Juego Sagrado en la Primera Infancia",
@@ -192,7 +416,7 @@
       "duration_min": 15
     },
     {
-      "id": 14,
+      "id": 33,
       "module_id": 3,
       "order_num": 4,
       "title": "Los Miedos Nocturnos y la Espiritualidad",
@@ -200,7 +424,7 @@
       "duration_min": 16
     },
     {
-      "id": 15,
+      "id": 34,
       "module_id": 3,
       "order_num": 5,
       "title": "Sembrando Semillas de Consciencia",
@@ -208,7 +432,7 @@
       "duration_min": 20
     },
     {
-      "id": 16,
+      "id": 35,
       "module_id": 4,
       "order_num": 1,
       "title": "Descubriendo los Dones Especiales",
@@ -216,7 +440,7 @@
       "duration_min": 20
     },
     {
-      "id": 17,
+      "id": 36,
       "module_id": 4,
       "order_num": 2,
       "title": "La Intuición en los Niños Conscientes",
@@ -224,7 +448,7 @@
       "duration_min": 18
     },
     {
-      "id": 18,
+      "id": 37,
       "module_id": 4,
       "order_num": 3,
       "title": "Relaciones Sagradas con sus Pares",
@@ -232,7 +456,7 @@
       "duration_min": 16
     },
     {
-      "id": 19,
+      "id": 38,
       "module_id": 4,
       "order_num": 4,
       "title": "La Escuela desde la Consciencia",
@@ -240,7 +464,7 @@
       "duration_min": 20
     },
     {
-      "id": 20,
+      "id": 39,
       "module_id": 4,
       "order_num": 5,
       "title": "Rituales de Conexión para Esta Etapa",
@@ -248,7 +472,7 @@
       "duration_min": 15
     },
     {
-      "id": 21,
+      "id": 40,
       "module_id": 5,
       "order_num": 1,
       "title": "El Adolescente como Ser de Luz",
@@ -256,7 +480,7 @@
       "duration_min": 22
     },
     {
-      "id": 22,
+      "id": 41,
       "module_id": 5,
       "order_num": 2,
       "title": "La Identidad y el Propósito",
@@ -264,7 +488,7 @@
       "duration_min": 20
     },
     {
-      "id": 23,
+      "id": 42,
       "module_id": 5,
       "order_num": 3,
       "title": "Navegando las Redes con Consciencia",
@@ -272,7 +496,7 @@
       "duration_min": 18
     },
     {
-      "id": 24,
+      "id": 43,
       "module_id": 5,
       "order_num": 4,
       "title": "El Amor Romántico Consciente",
@@ -280,7 +504,7 @@
       "duration_min": 20
     },
     {
-      "id": 25,
+      "id": 44,
       "module_id": 5,
       "order_num": 5,
       "title": "Su Misión en la Nueva Tierra",
