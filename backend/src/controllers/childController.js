@@ -30,7 +30,7 @@ async function geocodePlace(query) {
 
 async function addChild(req, res) {
   const {
-    name, age_stage,
+    name, age_stage, due_date,
     birth_date, birth_time, birth_place,
     mother_name, mother_birth_date, mother_birth_time, mother_birth_place, mother_birth_country,
   } = req.body;
@@ -48,6 +48,7 @@ async function addChild(req, res) {
     user_id: req.userId,
     name,
     age_stage: age_stage || deriveAgeStage(birth_date),
+    due_date: due_date || null,
     birth_date: birth_date || null,
     birth_time: birth_time || null,
     birth_place: birth_place || null,
@@ -81,7 +82,7 @@ async function addChild(req, res) {
 
 async function updateChild(req, res) {
   const {
-    name, age_stage, vibration_type,
+    name, age_stage, vibration_type, due_date,
     birth_date, birth_time, birth_place,
     mother_name, mother_birth_date, mother_birth_time, mother_birth_place, mother_birth_country,
   } = req.body;
@@ -105,6 +106,7 @@ async function updateChild(req, res) {
     ...(name && { name }),
     ...(age_stage && { age_stage }),
     ...(vibration_type && { vibration_type }),
+    ...(due_date !== undefined && { due_date }),
     ...(birth_date !== undefined && { birth_date }),
     ...(birth_time !== undefined && { birth_time }),
     ...(birth_place !== undefined && { birth_place, birth_lat: birthGeo?.lat ?? null, birth_lon: birthGeo?.lon ?? null }),
@@ -239,6 +241,20 @@ function getAscendant(birthDate, birthTime, lat, lon) {
   return getApproximateAscendant(birthDate, h + min / 60);
 }
 
+// Pregnancy is approximated as 280 days (40 weeks) from LMP to the due date. We divide
+// those 40 weeks evenly into the 9 monthly content fragments (≈4.44 weeks each) — this
+// is a content-bucketing approximation, not an obstetric month definition.
+function getPregnancyMonth(dueDate) {
+  if (!dueDate) return null;
+  const due = new Date(dueDate + 'T00:00:00Z');
+  if (Number.isNaN(due.getTime())) return null;
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const daysUntilDue = (due.getTime() - Date.now()) / msPerDay;
+  const weeksPregnant = (280 - daysUntilDue) / 7;
+  const month = Math.ceil(weeksPregnant / (40 / 9));
+  return Math.min(9, Math.max(1, month || 1));
+}
+
 function enrichChild(child) {
   const isEmbarazo = child.age_stage === 'embarazo';
   const chartDate = isEmbarazo ? child.mother_birth_date : child.birth_date;
@@ -253,6 +269,7 @@ function enrichChild(child) {
       ascendant: getAscendant(chartDate, chartTime, chartLat, chartLon),
       is_mother: isEmbarazo,
     } : null,
+    pregnancy_month: isEmbarazo ? getPregnancyMonth(child.due_date) : null,
   };
 }
 

@@ -48,7 +48,7 @@ export default function Login() {
   // ── Register state ─────────────────────────────────────────
   const [step, setStep] = useState(1);
   const [mama, setMama] = useState({ name: '', email: '', password: '' });
-  const [child, setChild] = useState({ name: '', age_stage: '', mother_name: '', birth_date: '', birth_time: '', birth_city: '', birth_country: '' });
+  const [child, setChild] = useState({ name: '', age_stage: '', mother_name: '', due_date: '', birth_date: '', birth_time: '', birth_city: '', birth_country: '' });
   const [regError, setRegError] = useState('');
   const [regLoading, setRegLoading] = useState(false);
   const [emailExists, setEmailExists] = useState('');
@@ -98,7 +98,7 @@ export default function Login() {
     setRegLoading(true);
     try {
       const isEmbarazo = child.age_stage === 'embarazo';
-      const hasChildData = child.name || child.age_stage || child.mother_name || child.birth_date;
+      const hasChildData = child.name || child.age_stage || child.mother_name || child.birth_date || child.due_date;
       await register({ name: mama.name, email: mama.email, password: mama.password, children_count: hasChildData ? 1 : 0 });
       if (hasChildData) {
         try {
@@ -106,6 +106,7 @@ export default function Login() {
             name: isEmbarazo ? 'Bebé en camino' : (child.name || 'Mi hijo/a'),
             age_stage: child.age_stage || null,
             ...(isEmbarazo ? {
+              due_date: child.due_date || null,
               mother_name: child.mother_name || null,
               mother_birth_date: child.birth_date || null,
               mother_birth_time: child.birth_time || null,
@@ -319,6 +320,14 @@ export default function Login() {
                             <p className="text-gray-500 text-xs mt-0.5">Opcionales — los usaremos para tu Carta Astral.</p>
                           </div>
                         </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-deep-plum mb-1.5">
+                          ¿Cuál es tu fecha probable de parto?
+                        </label>
+                        <input type="date" className="input-field"
+                          value={child.due_date} onChange={e => setChild(c => ({ ...c, due_date: e.target.value }))} />
+                        <p className="text-xs text-gray-400 mt-1">La usamos para mostrarte el contenido del mes de embarazo en el que estás.</p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-deep-plum mb-1.5">

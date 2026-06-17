@@ -34,14 +34,14 @@ function getModule(req, res) {
   res.json({ module, lessons: lessonsWithProgress });
 }
 
-function getDailyProgram(req, res) {
+function getMonthlyProgram(req, res) {
   const db = initDb();
   const id = Number(req.params.id);
   const module = db.get('modules').find({ id }).value();
   if (!module) return res.status(404).json({ error: 'Módulo no encontrado' });
 
-  const days = db.get('daily_programs').filter({ module_id: id }).sortBy('day').value();
-  res.json({ days });
+  const months = db.get('monthly_programs').filter({ module_id: id }).sortBy('month').value();
+  res.json({ months });
 }
 
 function completeLesson(req, res) {
@@ -58,4 +58,4 @@ function completeLesson(req, res) {
   res.json({ success: true, message: '¡Lección completada! Sigue brillando.' });
 }
 
-module.exports = { getAllModules, getModule, getDailyProgram, completeLesson };
+module.exports = { getAllModules, getModule, getMonthlyProgram, completeLesson };

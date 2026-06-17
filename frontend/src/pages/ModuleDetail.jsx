@@ -20,7 +20,7 @@ const TABS = [
   { key: 'carta', label: 'Carta Astral', icon: '🔮' },
   { key: 'audio', label: 'Audiolibro', icon: '🎧' },
   { key: 'plan', label: 'Plan 30 días', icon: '📅' },
-  { key: 'diario', label: 'Tu Camino Diario', icon: '🌙' },
+  { key: 'mensual', label: 'Tu Camino del Embarazo', icon: '🌙' },
 ];
 
 export default function ModuleDetail() {
@@ -28,11 +28,10 @@ export default function ModuleDetail() {
   const [module, setModule] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [children, setChildren] = useState([]);
-  const [dailyProgram, setDailyProgram] = useState([]);
+  const [monthlyProgram, setMonthlyProgram] = useState([]);
   const [activeLesson, setActiveLesson] = useState(null);
   const [activeTab, setActiveTab] = useState('lecciones');
-  const [activeDay, setActiveDay] = useState(null);
-  const [activeWeek, setActiveWeek] = useState(1);
+  const [activeMonth, setActiveMonth] = useState(null);
   const [completing, setCompleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -41,18 +40,18 @@ export default function ModuleDetail() {
     Promise.all([
       api.get(`/modules/${id}`),
       api.get('/children').catch(() => ({ data: { children: [] } })),
-      api.get(`/modules/${id}/daily-program`).catch(() => ({ data: { days: [] } })),
+      api.get(`/modules/${id}/monthly-program`).catch(() => ({ data: { months: [] } })),
     ])
-      .then(([modRes, childRes, dailyRes]) => {
+      .then(([modRes, childRes, monthlyRes]) => {
         setModule(modRes.data.module);
         setLessons(modRes.data.lessons);
         const first = modRes.data.lessons.find(l => !l.completed) || modRes.data.lessons[0];
         setActiveLesson(first);
-        setChildren(childRes.data.children || []);
-        const days = dailyRes.data.days || [];
-        setDailyProgram(days);
-        setActiveDay(days[0] || null);
-        setActiveWeek(days[0]?.week || 1);
+        const fetchedChildren = childRes.data.children || [];
+        setChildren(fetchedChildren);
+        setMonthlyProgram(monthlyRes.data.months || []);
+        const matching = findMatchingChild(fetchedChildren, modRes.data.module);
+        setActiveMonth(matching?.pregnancy_month || 1);
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -332,13 +331,27 @@ export default function ModuleDetail() {
           </div>
         )}
 
-        {/* ── Tu Camino Diario (afirmación, meditación, píldora, audio) ── */}
-        {activeTab === 'diario' && (
+        {/* ── Tu Camino del Embarazo (9 meses reales, no un ciclo fijo) ── */}
+        {activeTab === 'mensual' && (
           <div className="animate-fade-in">
-            {dailyProgram.length === 0 ? (
+            {monthlyProgram.length === 0 ? (
               <div className="card border-dashed border-2 border-rose-200 text-center py-10 max-w-2xl">
                 <span className="text-4xl mb-3 block">🌙</span>
-                <p className="text-gray-500">Este módulo todavía no tiene un camino diario configurado.</p>
+                <p className="text-gray-500">Este módulo todavía no tiene un camino mensual configurado.</p>
+              </div>
+            ) : !matchingChild ? (
+              <div className="card border-dashed border-2 border-rose-200 text-center py-10 max-w-2xl">
+                <span className="text-4xl mb-3 block">🤰</span>
+                <p className="text-gray-500 mb-4">Agrega en tu perfil que estás en esta etapa para ver tu camino del embarazo.</p>
+                <Link to="/perfil" className="btn-primary py-2 px-6 text-sm inline-block">Ir a mi perfil →</Link>
+              </div>
+            ) : !matchingChild.pregnancy_month ? (
+              <div className="card border-dashed border-2 border-rose-200 text-center py-10 max-w-2xl">
+                <span className="text-4xl mb-3 block">📅</span>
+                <p className="text-gray-500 mb-4">
+                  Agrega tu fecha probable de parto en tu perfil para ver el contenido del mes de embarazo en el que estás.
+                </p>
+                <Link to="/perfil" className="btn-primary py-2 px-6 text-sm inline-block">Ir a mi perfil →</Link>
               </div>
             ) : (
               <>
@@ -349,66 +362,69 @@ export default function ModuleDetail() {
                   </p>
                 </div>
 
-                <div className="flex gap-2 mb-4 flex-wrap">
-                  {[...new Set(dailyProgram.map(d => d.week))].map(w => {
-                    const weekDays = dailyProgram.filter(d => d.week === w);
+                <p className="text-sm text-rose-500 font-medium mb-4">
+                  🤰 Estás en el mes {matchingChild.pregnancy_month} de tu embarazo
+                </p>
+
+                <div className="grid grid-cols-3 sm:grid-cols-9 gap-2 mb-6 max-w-2xl">
+                  {monthlyProgram.map(m => {
+                    const unlocked = m.month <= matchingChild.pregnancy_month;
+                    const isActive = activeMonth === m.month;
                     return (
-                      <button key={w} onClick={() => { setActiveWeek(w); setActiveDay(weekDays[0]); }}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all border-2
-                          ${activeWeek === w ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 hover:border-rose-200 bg-white'}`}
-                        style={activeWeek === w ? { backgroundColor: module.color, borderColor: module.color } : {}}>
-                        Semana {w}
+                      <button key={m.month}
+                        onClick={() => unlocked && setActiveMonth(m.month)}
+                        disabled={!unlocked}
+                        className={`rounded-xl py-3 text-sm font-bold transition-all border-2 flex flex-col items-center gap-0.5
+                          ${!unlocked ? 'border-gray-100 text-gray-300 bg-gray-50 cursor-not-allowed'
+                            : isActive ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 bg-white hover:border-rose-200'}`}
+                        style={unlocked && isActive ? { backgroundColor: module.color, borderColor: module.color } : {}}>
+                        <span>{unlocked ? m.month : '🔒'}</span>
+                        <span className="text-[10px] font-normal">mes</span>
                       </button>
                     );
                   })}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-1">
-                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                      {dailyProgram.filter(d => d.week === activeWeek).map(d => (
-                        <button key={d.day} onClick={() => setActiveDay(d)}
-                          className={`rounded-xl py-2 text-sm font-bold transition-all border-2
-                            ${activeDay?.day === d.day ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 bg-white hover:border-rose-200'}`}
-                          style={activeDay?.day === d.day ? { backgroundColor: module.color, borderColor: module.color } : {}}>
-                          {d.day}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {activeDay && (
-                    <div className="lg:col-span-2 space-y-4 animate-fade-in">
+                {(() => {
+                  const current = monthlyProgram.find(m => m.month === activeMonth);
+                  if (!current) return null;
+                  return (
+                    <div className="max-w-2xl space-y-4 animate-fade-in">
                       <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">
-                        Día {activeDay.day} · {activeDay.pillar}
+                        Mes {current.month} · {current.etapa} · {current.trimester_label}
                       </p>
 
+                      <div className="bg-white rounded-2xl p-4 border-2 border-gray-100">
+                        <p className="text-xs font-bold uppercase tracking-wide text-gray-400 mb-1">🎧 Resumen en audio</p>
+                        <p className="text-deep-plum text-sm leading-relaxed">{current.audio_recap_label}</p>
+                      </div>
+
                       <div className="bg-plum-50 rounded-2xl p-5 border border-plum-100 text-center">
-                        <p className="text-xs font-bold uppercase tracking-wide text-plum-500 mb-2">✨ Afirmación de la semana</p>
-                        <p className="font-serif text-lg text-deep-plum italic">"{activeDay.affirmation}"</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-plum-500 mb-2">✨ Afirmación del mes</p>
+                        <p className="font-serif text-lg text-deep-plum italic">"{current.affirmation}"</p>
                       </div>
 
                       <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100">
-                        <p className="text-xs font-bold uppercase tracking-wide text-rose-500 mb-1">🧘 Meditación de la semana</p>
-                        <p className="font-semibold text-deep-plum text-sm mb-1">{activeDay.meditation_title}</p>
-                        <p className="text-gray-600 text-sm leading-relaxed">{activeDay.meditation_text}</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-rose-500 mb-1">🧘 Meditación del mes</p>
+                        <p className="font-semibold text-deep-plum text-sm mb-1">{current.meditation_title}</p>
+                        <p className="text-gray-600 text-sm leading-relaxed">{current.meditation_text}</p>
                       </div>
 
                       <div className="rounded-2xl p-4 border border-gold-300/50" style={{ backgroundColor: '#F3E9CC' }}>
-                        <p className="text-xs font-bold uppercase tracking-wide text-gold-600 mb-1">💡 Píldora del día</p>
-                        <p className="text-deep-plum text-sm leading-relaxed">{activeDay.tip}</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-gold-600 mb-1">💡 Píldora del mes</p>
+                        <p className="text-deep-plum text-sm leading-relaxed">{current.tip}</p>
                       </div>
 
                       <button onClick={() => setActiveTab('audio')}
                         className="w-full flex items-center justify-between bg-white rounded-2xl p-4 border-2 border-gray-100 hover:border-rose-200 transition-all text-left">
                         <span className="flex items-center gap-2 text-sm font-medium text-deep-plum">
-                          🎧 {activeDay.audio_label}
+                          🎧 Ir al Audiolibro
                         </span>
-                        <span className="text-rose-400 text-sm">Ir al audiolibro →</span>
+                        <span className="text-rose-400 text-sm">→</span>
                       </button>
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
               </>
             )}
           </div>

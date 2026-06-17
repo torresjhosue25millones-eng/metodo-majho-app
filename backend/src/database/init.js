@@ -17,7 +17,7 @@ function initDb() {
     children: [],
     modules: [],
     lessons: [],
-    daily_programs: [],
+    monthly_programs: [],
     user_progress: [],
     journal_entries: [],
     affirmations: [],

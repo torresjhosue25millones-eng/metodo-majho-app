@@ -22,7 +22,11 @@ const TYPE_LABELS = {
 
 function ChildCard({ child, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ name: child.name, age_stage: child.age_stage || '', birth_date: child.birth_date || '' });
+  const isEmbarazo = child.age_stage === 'embarazo';
+  const [form, setForm] = useState({
+    name: child.name, age_stage: child.age_stage || '',
+    birth_date: child.birth_date || '', due_date: child.due_date || '',
+  });
   const [loading, setLoading] = useState(false);
 
   async function handleSave() {
@@ -64,6 +68,17 @@ function ChildCard({ child, onUpdate, onDelete }) {
             value={form.birth_date}
             onChange={e => setForm(f => ({ ...f, birth_date: e.target.value }))}
           />
+          {form.age_stage === 'embarazo' && (
+            <div>
+              <label className="block text-xs font-medium text-deep-plum mb-1">¿Cuál es tu fecha probable de parto?</label>
+              <input
+                type="date"
+                className="input-field text-sm"
+                value={form.due_date}
+                onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))}
+              />
+            </div>
+          )}
           <div className="flex gap-2">
             <button onClick={handleSave} disabled={loading} className="btn-primary py-2 px-4 text-sm flex-1">
               {loading ? 'Guardando...' : 'Guardar'}
@@ -85,6 +100,11 @@ function ChildCard({ child, onUpdate, onDelete }) {
                 <p className="text-xs text-gray-400">
                   {AGE_STAGES.find(s => s.value === child.age_stage)?.icon} {AGE_STAGES.find(s => s.value === child.age_stage)?.label}
                 </p>
+              )}
+              {isEmbarazo && (
+                child.pregnancy_month
+                  ? <p className="text-xs text-rose-400 font-medium mt-0.5">🤰 Mes {child.pregnancy_month} de embarazo</p>
+                  : <p className="text-xs text-amber-500 mt-0.5">Agrega tu fecha probable de parto para ver tu mes de embarazo</p>
               )}
               {typeInfo && (
                 <p className="text-xs font-medium mt-0.5" style={{ color: '#9B8EC4' }}>
@@ -127,7 +147,7 @@ export default function Profile() {
   const [success, setSuccess] = useState(false);
   const [children, setChildren] = useState([]);
   const [showAddChild, setShowAddChild] = useState(false);
-  const [newChild, setNewChild] = useState({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_place: '' });
+  const [newChild, setNewChild] = useState({ name: '', age_stage: '', due_date: '', birth_date: '', birth_time: '', birth_place: '' });
   const [addingChild, setAddingChild] = useState(false);
 
   useEffect(() => {
@@ -158,6 +178,7 @@ export default function Profile() {
         name: newChild.name,
         age_stage: newChild.age_stage || undefined,
         ...(isEmbarazo ? {
+          due_date: newChild.due_date || undefined,
           mother_birth_date: newChild.birth_date || undefined,
           mother_birth_time: newChild.birth_time || undefined,
           mother_birth_place: newChild.birth_place || undefined,
@@ -169,7 +190,7 @@ export default function Profile() {
       };
       const res = await api.post('/children', payload);
       setChildren(prev => [...prev, res.data.child]);
-      setNewChild({ name: '', age_stage: '', birth_date: '', birth_time: '', birth_place: '' });
+      setNewChild({ name: '', age_stage: '', due_date: '', birth_date: '', birth_time: '', birth_place: '' });
       setShowAddChild(false);
     } finally {
       setAddingChild(false);
@@ -294,6 +315,17 @@ export default function Profile() {
                   <option key={s.value} value={s.value}>{s.icon} {s.label}</option>
                 ))}
               </select>
+              {newChild.age_stage === 'embarazo' && (
+                <div>
+                  <label className="block text-xs font-medium text-deep-plum mb-1">¿Cuál es tu fecha probable de parto?</label>
+                  <input
+                    type="date"
+                    className="input-field text-sm"
+                    value={newChild.due_date}
+                    onChange={e => setNewChild(c => ({ ...c, due_date: e.target.value }))}
+                  />
+                </div>
+              )}
               <input
                 type="date"
                 className="input-field text-sm"
