@@ -165,9 +165,21 @@ function getLatestResult(req, res) {
   if (childId) results = results.filter({ child_id: childId });
 
   const latest = results.sortBy('created_at').last().value();
-  if (!latest) return res.json({ result: null });
+  if (latest) return res.json({ result: latest, type: VIBRATION_TYPES[latest.type_key] });
 
-  res.json({ result: latest, type: VIBRATION_TYPES[latest.type_key] });
+  // Fallback: a child can already have vibration_type set without a formal
+  // questionnaire_results row (e.g. data entered before this flow existed).
+  // Treat that as a valid result instead of forcing a redundant retest.
+  let children = db.get('children').filter({ user_id: req.userId });
+  if (childId) children = children.filter({ id: childId });
+  const child = children.find(c => !!c.vibration_type).value();
+  if (!child) return res.json({ result: null });
+
+  const synthesized = {
+    id: null, user_id: req.userId, child_id: child.id,
+    type_key: child.vibration_type, scores: null, created_at: child.created_at,
+  };
+  res.json({ result: synthesized, type: VIBRATION_TYPES[child.vibration_type] });
 }
 
 const QUESTIONNAIRE_QUESTIONS = [
