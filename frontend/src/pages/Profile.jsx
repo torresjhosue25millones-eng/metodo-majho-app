@@ -4,14 +4,8 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-
-const AGE_STAGES = [
-  { value: 'embarazo', label: 'Embarazo', icon: '🤰' },
-  { value: '0-2', label: '0 a 2 años', icon: '👶' },
-  { value: '3-7', label: '3 a 7 años', icon: '🌱' },
-  { value: '8-12', label: '8 a 12 años', icon: '✨' },
-  { value: '13-18', label: '13 a 18 años', icon: '🌟' },
-];
+import { AGE_STAGES } from '../utils/ageStages';
+import { STAGE_MAP, childEditableName } from '../utils/moduleMatch';
 
 const TYPE_LABELS = {
   I: { name: 'Índigo', emoji: '💙' },
@@ -24,7 +18,7 @@ function ChildCard({ child, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false);
   const isEmbarazo = child.age_stage === 'embarazo';
   const [form, setForm] = useState({
-    name: child.name, age_stage: child.age_stage || '',
+    name: childEditableName(child), age_stage: child.age_stage || '',
     birth_date: child.birth_date || '', due_date: child.due_date || '',
   });
   const [loading, setLoading] = useState(false);
@@ -96,11 +90,12 @@ function ChildCard({ child, onUpdate, onDelete }) {
             </div>
             <div>
               <p className="font-semibold text-deep-plum">{child.name}</p>
-              {child.age_stage && (
-                <p className="text-xs text-gray-400">
-                  {AGE_STAGES.find(s => s.value === child.age_stage)?.icon} {AGE_STAGES.find(s => s.value === child.age_stage)?.label}
-                </p>
-              )}
+              {child.age_stage && (() => {
+                const stage = AGE_STAGES.find(s => s.value === (STAGE_MAP[child.age_stage] || child.age_stage));
+                return stage ? (
+                  <p className="text-xs text-gray-400">{stage.icon} {stage.label}</p>
+                ) : null;
+              })()}
               {isEmbarazo && (
                 child.pregnancy_month
                   ? <p className="text-xs text-rose-400 font-medium mt-0.5">🤰 Mes {child.pregnancy_month} de embarazo</p>

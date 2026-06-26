@@ -156,9 +156,9 @@ function deriveAgeStage(birthDate) {
   if (birth > now) return 'embarazo';
   const months = (now - birth) / (1000 * 60 * 60 * 24 * 30);
   if (months < 24) return '0-2';
-  if (months < 84) return '3-7';
-  if (months < 156) return '8-12';
-  return '13-18';
+  if (months < 84) return '2-7';
+  if (months < 144) return '7-12';
+  return '12-17';
 }
 
 function getSolarSign(birthDate) {

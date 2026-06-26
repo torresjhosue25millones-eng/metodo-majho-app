@@ -121,6 +121,16 @@ function submitQuestionnaire(req, res) {
     return res.status(400).json({ error: 'Respuestas inválidas' });
   }
 
+  if (child_id) {
+    const db = initDb();
+    const child = db.get('children').find({ id: Number(child_id), user_id: req.userId }).value();
+    // The vibration isn't identifiable during pregnancy or the 0-2 stage — enforced
+    // here too, not just hidden in the UI, since this is a real business rule.
+    if (child && ['embarazo', '0-2'].includes(child.age_stage)) {
+      return res.status(400).json({ error: 'El test de vibración aún no aplica para esta etapa' });
+    }
+  }
+
   const scores = { I: 0, C: 0, A: 0, D: 0 };
   answers.forEach(a => { if (scores[a] !== undefined) scores[a]++; });
 

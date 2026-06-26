@@ -12,6 +12,7 @@ const childrenRoutes = require('./routes/children');
 const questionnaireRoutes = require('./routes/questionnaire');
 const actionPlanRoutes = require('./routes/actionPlan');
 const emergencyRoutes = require('./routes/emergency');
+const checkinRoutes = require('./routes/checkin');
 const webhookRoutes = require('./routes/webhook');
 
 const app = express();
@@ -35,6 +36,7 @@ app.use('/api/children', childrenRoutes);
 app.use('/api/questionnaire', questionnaireRoutes);
 app.use('/api/plan', actionPlanRoutes);
 app.use('/api/emergency', emergencyRoutes);
+app.use('/api/checkins', checkinRoutes);
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok', app: 'Método MAJHO API' }));
 

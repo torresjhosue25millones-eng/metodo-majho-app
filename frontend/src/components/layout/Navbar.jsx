@@ -29,9 +29,8 @@ export default function Navbar() {
   }, [user]);
 
   const navLinks = [
-    { to: '/dashboard', label: 'Inicio', icon: '🏠' },
+    { to: myModuleLink, label: 'Mi Módulo', icon: '🏠' },
     { to: '/modulos', label: 'Módulos', icon: '📖' },
-    { to: myModuleLink, label: 'Mi Módulo', icon: '🌙' },
     { to: '/diario', label: 'Diario', icon: '✍️' },
     { to: '/afirmaciones', label: 'Afirmaciones', icon: '✨' },
     { to: '/perfil', label: 'Perfil', icon: '👤' },
@@ -43,7 +42,7 @@ export default function Navbar() {
     <nav className="bg-white border-b border-rose-100 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex items-center justify-between h-16">
-          <Link to="/dashboard" className="flex items-center gap-2 flex-shrink-0">
+          <Link to={myModuleLink} className="flex items-center gap-2 flex-shrink-0">
             <LogoImg />
             <span className="font-serif font-bold text-deep-plum text-lg hidden md:block">Método MAJHO</span>
           </Link>

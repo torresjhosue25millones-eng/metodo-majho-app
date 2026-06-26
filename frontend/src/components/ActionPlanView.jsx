@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { VIBRATION_ELIGIBLE_STAGES, childDisplayName } from '../utils/moduleMatch';
 
 const TYPE_META = {
   I: { name: 'Índigo', emoji: '💙', color: '#4B0082', bg: 'from-indigo-50 to-purple-50', border: 'border-indigo-200' },
@@ -11,7 +12,8 @@ const TYPE_META = {
 
 const WEEK_COLORS = ['#5C8A6E', '#7B5EA7', '#7CB9A8', '#C9A84C', '#2D2D2D'];
 
-export default function ActionPlanView() {
+export default function ActionPlanView({ moduleColor } = {}) {
+  const navigate = useNavigate();
   const [plan, setPlan] = useState(null);
   const [days, setDays] = useState([]);
   const [children, setChildren] = useState([]);
@@ -37,6 +39,25 @@ export default function ActionPlanView() {
       if (vibRes.data.result) setVibResult(vibRes.data);
     }).finally(() => setLoading(false));
   }, []);
+
+  // The vibration test belongs to onboarding only — if we land here without a
+  // plan or a result for an eligible child, that's the bug the test relocation
+  // was supposed to prevent. Send the user back to complete it there.
+  const hasEligibleChild = children.some(c => VIBRATION_ELIGIBLE_STAGES.includes(c.age_stage));
+  useEffect(() => {
+    if (!loading && !plan && !vibResult && hasEligibleChild) {
+      navigate('/cuestionario');
+    }
+  }, [loading, plan, vibResult, hasEligibleChild, navigate]);
+
+  // No eligible child (e.g. embarazo/0-2) means the type will never be known —
+  // default to the Cristal plan rather than leaving the membership empty-handed.
+  useEffect(() => {
+    if (!loading && !plan && !vibResult && !hasEligibleChild) {
+      startPlan('C');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, plan, vibResult, hasEligibleChild]);
 
   async function startPlan(vibType) {
     setCreating(true);
@@ -77,6 +98,11 @@ export default function ActionPlanView() {
   const progressPct = days.length > 0 ? Math.round((completedCount / 30) * 100) : 0;
   const typeKey = plan?.vibration_type;
   const meta = typeKey ? TYPE_META[typeKey] : null;
+  // Keep one consistent color per module — without this, switching from
+  // "Lecciones" (module color) to "Plan 30 días" (vibration-type color) made
+  // the module's accent color visibly shift between tabs.
+  const accentColor = moduleColor || meta?.color;
+  const planChild = plan?.child_id ? children.find(c => c.id === plan.child_id) : null;
 
   // Group days by week
   const weeks = [1, 2, 3, 4, 5];
@@ -118,37 +144,47 @@ export default function ActionPlanView() {
               </button>
             </div>
           ) : (
-            <div className="max-w-lg mx-auto">
-              <div className="card text-center mb-6">
-                <p className="text-gray-500 mb-4">Primero completa el Test de Vibración para recibir un plan personalizado.</p>
-                <Link to="/cuestionario" className="btn-primary inline-block">🔮 Hacer el Test</Link>
-              </div>
-              <p className="text-center text-gray-400 text-sm mb-4">O elige el tipo directamente:</p>
-              <div className="grid grid-cols-2 gap-3">
-                {Object.entries(TYPE_META).map(([key, t]) => (
-                  <button key={key} onClick={() => startPlan(key)} disabled={creating}
-                    className={`border-2 ${t.border} bg-gradient-to-br ${t.bg} rounded-2xl p-4 text-center hover:shadow-md transition-all disabled:opacity-60`}>
-                    <div className="text-3xl mb-1">{t.emoji}</div>
-                    <p className="font-semibold text-deep-plum text-sm">{t.name}</p>
-                  </button>
-                ))}
-              </div>
+            <div className="text-center text-gray-400 py-6">
+              {hasEligibleChild ? 'Redirigiendo a tu test de vibración...' : 'Preparando tu plan...'}
             </div>
           )}
         </div>
       ) : (
         /* Plan exists */
         <div className="animate-fade-in">
-          {/* Header */}
+          {/* 1. Resumen de identidad */}
+          {planChild && (
+            <div className="rounded-2xl p-4 mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-lg font-sans"
+              style={{ backgroundColor: '#F5F0E8', color: '#2E2820' }}>
+              <span className="font-semibold">{childDisplayName(planChild)}</span>{' '}
+              <span>es</span>{' '}
+              <span className="font-semibold" style={{ color: '#C49A3C' }}>{meta?.name}</span>{' '}
+              {planChild.astral_chart?.solar && (
+                <>
+                  <span className="opacity-40">·</span>{' '}
+                  <span>Signo solar: <span className="font-semibold">{planChild.astral_chart.solar.sign}</span></span>{' '}
+                </>
+              )}
+              {planChild.astral_chart?.ascendant && (
+                <>
+                  <span className="opacity-40">·</span>{' '}
+                  <span>Ascendente: <span className="font-semibold">{planChild.astral_chart.ascendant.sign}</span></span>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* 2. Plan de acción del mes — Header */}
           <div className={`border-2 ${meta?.border} bg-gradient-to-br ${meta?.bg} rounded-3xl p-6 mb-6`}>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-4">
                 <span className="text-4xl">{meta?.emoji}</span>
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Tu Plan Personalizado</p>
-                  <h1 className="font-serif text-2xl font-bold" style={{ color: meta?.color }}>
-                    Plan 30 Días · {meta?.name}
+                  <h1 className="font-serif text-2xl font-bold" style={{ color: accentColor }}>
+                    Tu plan personalizado de 30 días para tu niño/a {meta?.name}
                   </h1>
+                  {planChild && <p className="text-gray-500 text-sm">{childDisplayName(planChild)}</p>}
                   <p className="text-gray-500 text-sm">
                     {completedCount}/30 días completados · {progressPct}%
                   </p>
@@ -157,7 +193,7 @@ export default function ActionPlanView() {
               <div className="text-right">
                 <div className="w-32 bg-white/60 rounded-full h-3 mb-1">
                   <div className="h-3 rounded-full transition-all duration-700"
-                    style={{ width: `${progressPct}%`, backgroundColor: meta?.color }} />
+                    style={{ width: `${progressPct}%`, backgroundColor: accentColor }} />
                 </div>
                 <button onClick={() => startPlan(typeKey)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
                   Reiniciar plan
@@ -206,7 +242,7 @@ export default function ActionPlanView() {
                           className={`relative rounded-2xl p-4 text-left transition-all border-2 hover:shadow-md
                             ${selectedDay?.day === day.day ? 'ring-2 ring-offset-2' : ''}
                             ${day.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100 hover:border-rose-200'}`}
-                          style={selectedDay?.day === day.day ? { ringColor: meta?.color } : {}}>
+                          style={selectedDay?.day === day.day ? { ringColor: accentColor } : {}}>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-bold text-gray-400">Día {day.day}</span>
                             {day.completed && <span className="text-green-500 text-sm">✓</span>}
@@ -237,20 +273,53 @@ export default function ActionPlanView() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="bg-amber-50 rounded-xl p-3">
-                      <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">🤔 Reflexión</p>
-                      <p className="text-sm text-gray-700 italic">"{selectedDay.reflection}"</p>
-                    </div>
+                    {selectedDay.morning ? (
+                      <>
+                        <div className="bg-amber-50 rounded-xl p-3">
+                          <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">🌅 Rutina de mañana · {selectedDay.morning.duration_min} min</p>
+                          <p className="text-sm text-gray-700">{selectedDay.morning.activity}</p>
+                        </div>
 
-                    <div className="bg-rose-50 rounded-xl p-3">
-                      <p className="text-xs font-bold text-rose-500 uppercase tracking-wide mb-1">✅ Actividad</p>
-                      <p className="text-sm text-gray-700">{selectedDay.activity}</p>
-                    </div>
+                        <div className="bg-rose-50 rounded-xl p-3">
+                          <p className="text-xs font-bold text-rose-500 uppercase tracking-wide mb-1">☀️ Rutina de tarde · {selectedDay.afternoon.duration_min} min</p>
+                          <p className="text-sm text-gray-700">{selectedDay.afternoon.activity}</p>
+                        </div>
 
-                    <div className={`bg-gradient-to-br ${meta?.bg} border ${meta?.border} rounded-xl p-3`}>
-                      <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: meta?.color }}>💜 Afirmación</p>
-                      <p className="text-sm font-serif italic text-deep-plum">"{selectedDay.affirmation}"</p>
-                    </div>
+                        <div className="bg-plum-50 rounded-xl p-3">
+                          <p className="text-xs font-bold text-plum-500 uppercase tracking-wide mb-1">🌙 Rutina de noche · {selectedDay.night.duration_min} min</p>
+                          <p className="text-sm text-gray-700">{selectedDay.night.activity}</p>
+                        </div>
+
+                        {selectedDay.tip && (
+                          <div className="bg-green-50 rounded-xl p-3">
+                            <p className="text-xs font-bold text-green-600 uppercase tracking-wide mb-1">🌿 Tip de ambiente</p>
+                            <p className="text-sm text-gray-700">{selectedDay.tip}</p>
+                          </div>
+                        )}
+
+                        <div className={`bg-gradient-to-br ${meta?.bg} border ${meta?.border} rounded-xl p-3`}>
+                          <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: accentColor }}>💜 Afirmación para ti, mamá</p>
+                          <p className="text-sm font-serif italic text-deep-plum">"{selectedDay.mom_affirmation}"</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="bg-amber-50 rounded-xl p-3">
+                          <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">🤔 Reflexión</p>
+                          <p className="text-sm text-gray-700 italic">"{selectedDay.reflection}"</p>
+                        </div>
+
+                        <div className="bg-rose-50 rounded-xl p-3">
+                          <p className="text-xs font-bold text-rose-500 uppercase tracking-wide mb-1">✅ Actividad</p>
+                          <p className="text-sm text-gray-700">{selectedDay.activity}</p>
+                        </div>
+
+                        <div className={`bg-gradient-to-br ${meta?.bg} border ${meta?.border} rounded-xl p-3`}>
+                          <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: accentColor }}>💜 Afirmación</p>
+                          <p className="text-sm font-serif italic text-deep-plum">"{selectedDay.affirmation}"</p>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <button

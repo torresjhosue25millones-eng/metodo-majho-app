@@ -2,14 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-
-const AGE_STAGES = [
-  { value: 'embarazo', label: 'Embarazo', icon: '🤰', desc: 'Bebé en camino' },
-  { value: '0-2', label: '0 a 2 años', icon: '👶', desc: 'Bebé e infante' },
-  { value: '2-6', label: '2 a 6 años', icon: '🌱', desc: 'Primera infancia' },
-  { value: '6-12', label: '6 a 12 años', icon: '✨', desc: 'Niñez media' },
-  { value: '12-17', label: '12 a 17 años', icon: '🌟', desc: 'Adolescencia' },
-];
+import { resolveHomeRoute } from '../utils/resolveHome';
+import { AGE_STAGES } from '../utils/ageStages';
 
 const REG_STEPS = ['Tu cuenta', 'Tu hijo/a', 'Carta astral'];
 
@@ -63,7 +57,7 @@ export default function Login() {
     setLoginLoading(true);
     try {
       await login(loginForm.email, loginForm.password);
-      navigate('/dashboard');
+      navigate(await resolveHomeRoute());
     } catch (err) {
       setLoginError(err.response?.data?.error || 'Error al iniciar sesión. Verifica tus datos.');
     } finally {
@@ -466,7 +460,7 @@ export default function Login() {
                     </p>
                   </div>
                   <button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={async () => navigate(await resolveHomeRoute())}
                     className="btn-primary w-full text-base py-3.5"
                   >
                     Comenzar mi camino →

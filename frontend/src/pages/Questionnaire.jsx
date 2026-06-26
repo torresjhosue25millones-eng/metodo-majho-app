@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import { getMatchingModule, VIBRATION_ELIGIBLE_STAGES } from '../utils/moduleMatch';
 
 const TYPE_STYLES = {
   indigo: { emoji: '💙', color: '#4B0082', bg: 'from-indigo-50 to-purple-50', border: 'border-indigo-300', badge: 'bg-indigo-100 text-indigo-700' },
@@ -14,6 +15,7 @@ const TYPE_STYLES = {
 export default function Questionnaire() {
   const [questions, setQuestions] = useState([]);
   const [children, setChildren] = useState([]);
+  const [modules, setModules] = useState([]);
   const [selectedChild, setSelectedChild] = useState('');
   const [answers, setAnswers] = useState({});
   const [currentQ, setCurrentQ] = useState(0);
@@ -28,12 +30,18 @@ export default function Questionnaire() {
       api.get('/questionnaire/questions'),
       api.get('/children'),
       api.get('/questionnaire/result'),
-    ]).then(([qRes, cRes, rRes]) => {
+      api.get('/modules').catch(() => ({ data: { modules: [] } })),
+    ]).then(([qRes, cRes, rRes, modRes]) => {
       setQuestions(qRes.data.questions);
       setChildren(cRes.data.children);
       if (rRes.data.result) setExistingResult(rRes.data);
+      setModules(modRes.data.modules || []);
     }).finally(() => setLoading(false));
   }, []);
+
+  const eligibleChildren = children.filter(c => VIBRATION_ELIGIBLE_STAGES.includes(c.age_stage));
+  const myModule = getMatchingModule(children, modules);
+  const myModuleLink = myModule ? `/modulos/${myModule.id}` : '/modulos';
 
   function handleAnswer(value) {
     const newAnswers = { ...answers, [currentQ]: value };
@@ -123,47 +131,62 @@ export default function Questionnaire() {
               </div>
             )}
 
-            {/* Child selector */}
-            {children.length > 0 && (
-              <div className="card mb-6">
-                <label className="block text-sm font-medium text-deep-plum mb-2">
-                  ¿Para cuál de tus hijos/as? <span className="text-gray-400 font-normal">(opcional)</span>
-                </label>
-                <select
-                  className="input-field"
-                  value={selectedChild}
-                  onChange={e => setSelectedChild(e.target.value)}
-                >
-                  <option value="">Sin asignar</option>
-                  {children.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+            {children.length > 0 && eligibleChildren.length === 0 ? (
+              /* Every child is still in pregnancy/0-2 — the vibration isn't identifiable yet */
+              <div className="card border-dashed border-2 border-rose-200 text-center py-10">
+                <span className="text-4xl mb-3 block">🌙</span>
+                <p className="text-deep-plum font-medium mb-2">Aún es muy pronto para identificar la vibración de tu hijo/a.</p>
+                <p className="text-gray-500 text-sm mb-5 max-w-md mx-auto">
+                  El test de vibración aplica a partir de los 2 años. Mientras tanto, sigue disfrutando
+                  el contenido de su módulo actual.
+                </p>
+                <Link to={myModuleLink} className="btn-primary inline-block">Ir a mi módulo →</Link>
               </div>
-            )}
+            ) : (
+              <>
+                {/* Child selector */}
+                {eligibleChildren.length > 0 && (
+                  <div className="card mb-6">
+                    <label className="block text-sm font-medium text-deep-plum mb-2">
+                      ¿Para cuál de tus hijos/as? <span className="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <select
+                      className="input-field"
+                      value={selectedChild}
+                      onChange={e => setSelectedChild(e.target.value)}
+                    >
+                      <option value="">Sin asignar</option>
+                      {eligibleChildren.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
-            {/* Type preview cards */}
-            <div className="grid grid-cols-2 gap-3 mb-8">
-              {[
-                { key: 'indigo', name: 'Índigo', emoji: '💙', desc: 'Guerrero espiritual' },
-                { key: 'cristal', name: 'Cristal', emoji: '💜', desc: 'Sanador de almas' },
-                { key: 'arcoiris', name: 'Arcoíris', emoji: '🌈', desc: 'Alegría divina' },
-                { key: 'diamante', name: 'Diamante', emoji: '💎', desc: 'Ser multidimensional' },
-              ].map(t => (
-                <div key={t.key} className={`border-2 ${TYPE_STYLES[t.key]?.border} rounded-2xl p-4 bg-gradient-to-br ${TYPE_STYLES[t.key]?.bg} text-center`}>
-                  <div className="text-3xl mb-1">{t.emoji}</div>
-                  <p className="font-semibold text-deep-plum text-sm">{t.name}</p>
-                  <p className="text-xs text-gray-400">{t.desc}</p>
+                {/* Type preview cards */}
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  {[
+                    { key: 'indigo', name: 'Índigo', emoji: '💙', desc: 'Guerrero espiritual' },
+                    { key: 'cristal', name: 'Cristal', emoji: '💜', desc: 'Sanador de almas' },
+                    { key: 'arcoiris', name: 'Arcoíris', emoji: '🌈', desc: 'Alegría divina' },
+                    { key: 'diamante', name: 'Diamante', emoji: '💎', desc: 'Ser multidimensional' },
+                  ].map(t => (
+                    <div key={t.key} className={`border-2 ${TYPE_STYLES[t.key]?.border} rounded-2xl p-4 bg-gradient-to-br ${TYPE_STYLES[t.key]?.bg} text-center`}>
+                      <div className="text-3xl mb-1">{t.emoji}</div>
+                      <p className="font-semibold text-deep-plum text-sm">{t.name}</p>
+                      <p className="text-xs text-gray-400">{t.desc}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <button
-              onClick={() => setPhase('quiz')}
-              className="btn-primary w-full text-base py-4"
-            >
-              🔮 Comenzar el test (12 preguntas)
-            </button>
+                <button
+                  onClick={() => setPhase('quiz')}
+                  className="btn-primary w-full text-base py-4"
+                >
+                  🔮 Comenzar el test (12 preguntas)
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -316,8 +339,8 @@ export default function Questionnaire() {
               <button onClick={restart} className="btn-secondary flex-1">
                 🔄 Repetir test
               </button>
-              <Link to="/modulos" className="btn-primary flex-1 text-center">
-                Ver módulos →
+              <Link to={myModuleLink} className="btn-primary flex-1 text-center">
+                Ir a mi módulo →
               </Link>
             </div>
           </div>

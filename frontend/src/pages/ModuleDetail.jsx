@@ -6,8 +6,9 @@ import Footer from '../components/layout/Footer';
 import ActionPlanView from '../components/ActionPlanView';
 import JournalView from '../components/JournalView';
 import EmergencyView from '../components/EmergencyView';
-
-const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
+import { downloadAstralChartPdf } from '../utils/generateAstralChartPdf';
+import MonthlyCheckinModal from '../components/MonthlyCheckinModal';
+import { STAGE_MAP, childDisplayName } from '../utils/moduleMatch';
 
 function findMatchingChild(children, module) {
   if (!module) return null;
@@ -45,6 +46,9 @@ export default function ModuleDetail() {
   const [activeTrimester, setActiveTrimester] = useState(1);
   const [completing, setCompleting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [vibResult, setVibResult] = useState(null);
+  const [checkinDue, setCheckinDue] = useState(false);
+  const [showCheckin, setShowCheckin] = useState(false);
 
   useEffect(() => {
     setActiveTab('lecciones');
@@ -52,8 +56,9 @@ export default function ModuleDetail() {
       api.get(`/modules/${id}`),
       api.get('/children').catch(() => ({ data: { children: [] } })),
       api.get(`/modules/${id}/monthly-program`).catch(() => ({ data: { months: [] } })),
+      api.get('/questionnaire/result').catch(() => ({ data: { result: null } })),
     ])
-      .then(([modRes, childRes, monthlyRes]) => {
+      .then(([modRes, childRes, monthlyRes, vibRes]) => {
         setModule(modRes.data.module);
         setLessons(modRes.data.lessons);
         const first = modRes.data.lessons.find(l => !l.completed) || modRes.data.lessons[0];
@@ -66,6 +71,12 @@ export default function ModuleDetail() {
         setActiveMonth(currentMonth);
         const months = monthlyRes.data.months || [];
         setActiveTrimester(months.find(m => m.month === currentMonth)?.trimester || 1);
+        if (vibRes.data.result) setVibResult(vibRes.data);
+        if (matching) {
+          api.get(`/checkins/status?child_id=${matching.id}`)
+            .then(statusRes => setCheckinDue(statusRes.data.due))
+            .catch(() => {});
+        }
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -112,6 +123,8 @@ export default function ModuleDetail() {
   const matchingChild = findMatchingChild(children, module);
   const chart = matchingChild?.astral_chart;
   const TABS = getTabs(module);
+  // Vibration (cristal/arcoíris/diamante/índigo) isn't identifiable during pregnancy or 0-2.
+  const isVibrationEligible = module && module.age_range !== 'embarazo' && module.age_range !== '0-2';
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
@@ -129,7 +142,7 @@ export default function ModuleDetail() {
             <span className="text-4xl">{module.icon}</span>
             <div>
               <p className="text-white/70 text-sm uppercase tracking-widest">{module.age_label}</p>
-              <h1 className="font-serif text-3xl font-bold">Bienvenida a {module.title}</h1>
+              <h1 className="font-serif text-3xl font-bold">Bienvenida al módulo {module.title}</h1>
               <p className="text-white/80">{module.subtitle}</p>
             </div>
           </div>
@@ -139,6 +152,62 @@ export default function ModuleDetail() {
           </div>
           <p className="text-white/70 text-sm mt-1">{completedCount}/{lessons.length} lecciones · {pct}%</p>
         </div>
+
+        {checkinDue && matchingChild && (
+          <div className="bg-gold-300/20 border border-gold-400 rounded-2xl px-5 py-3 mb-6 flex items-center justify-between flex-wrap gap-3">
+            <p className="text-sm text-deep-plum flex items-center gap-2">
+              <span className="text-xl">🌙</span>
+              Es momento de tu check-in mensual con {matchingChild.name}.
+            </p>
+            <button onClick={() => setShowCheckin(true)} className="btn-primary py-2 px-5 text-sm">
+              Hacer mi check-in →
+            </button>
+          </div>
+        )}
+
+        {showCheckin && matchingChild && (
+          <MonthlyCheckinModal
+            child={matchingChild}
+            onClose={(completed) => { setShowCheckin(false); if (completed) setCheckinDue(false); }}
+          />
+        )}
+
+        {/* Identidad del niño/a — bloque separado, fondo crema/tinta/dorado */}
+        {matchingChild && (vibResult?.type || chart) && (
+          <div className="rounded-2xl p-5 mb-6 flex flex-wrap items-center justify-between gap-4"
+            style={{ backgroundColor: '#F5F0E8' }}>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-lg font-sans" style={{ color: '#2E2820' }}>
+              {chart?.is_mother ? (
+                <span className="font-semibold">Tu carta astral, mamá</span>
+              ) : (
+                <span className="font-semibold">{childDisplayName(matchingChild)}</span>
+              )}{' '}
+              {isVibrationEligible && vibResult?.type && (
+                <>
+                  <span>es</span>{' '}
+                  <span className="font-semibold" style={{ color: '#C49A3C' }}>{vibResult.type.name}</span>{' '}
+                </>
+              )}
+              {chart?.solar && (
+                <>
+                  <span className="opacity-40">·</span>{' '}
+                  <span>Signo solar: <span className="font-semibold">{chart.solar.sign}</span></span>{' '}
+                </>
+              )}
+              {chart?.ascendant && (
+                <>
+                  <span className="opacity-40">·</span>{' '}
+                  <span>Ascendente: <span className="font-semibold">{chart.ascendant.sign}</span></span>
+                </>
+              )}
+            </div>
+            {chart && (
+              <button onClick={() => setActiveTab('carta')} className="text-sm font-medium hover:underline flex-shrink-0" style={{ color: '#C49A3C' }}>
+                Ver carta astral completa →
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Tabs — this module's self-contained world */}
         <div className="flex gap-2 mb-6 flex-wrap">
@@ -292,6 +361,15 @@ export default function ModuleDetail() {
                     </div>
                   )}
                 </div>
+                <button
+                  onClick={() => downloadAstralChartPdf(chart, {
+                    name: chart.is_mother ? matchingChild.mother_name || matchingChild.name : matchingChild.name,
+                    isMother: chart.is_mother,
+                  })}
+                  className="btn-secondary mt-4 text-sm py-2 px-5"
+                >
+                  📄 Descargar carta astral en PDF
+                </button>
               </div>
             ) : matchingChild ? (
               <div className="card border-dashed border-2 border-rose-200 text-center py-10">
@@ -342,7 +420,7 @@ export default function ModuleDetail() {
         {/* ── Plan 30 días ───────────────────────────────── */}
         {activeTab === 'plan' && (
           <div className="animate-fade-in">
-            <ActionPlanView />
+            <ActionPlanView moduleColor={module.color} />
           </div>
         )}
 
@@ -386,10 +464,11 @@ export default function ModuleDetail() {
                       <div>
                         <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Tu Camino del Embarazo</p>
                         <h1 className="font-serif text-2xl font-bold" style={{ color: module.color }}>
-                          Mes {matchingChild.pregnancy_month} de 9
+                          Mes {activeMonth} de 9
                         </h1>
                         <p className="text-gray-500 text-sm">
-                          {monthlyProgram.find(m => m.month === matchingChild.pregnancy_month)?.trimester_label}
+                          {monthlyProgram.find(m => m.month === activeMonth)?.trimester_label}
+                          {activeMonth === matchingChild.pregnancy_month && ' · Tu mes actual'}
                         </p>
                       </div>
                     </div>
@@ -398,7 +477,7 @@ export default function ModuleDetail() {
                         <div className="h-3 rounded-full transition-all duration-700"
                           style={{ width: `${Math.round((matchingChild.pregnancy_month / 9) * 100)}%`, backgroundColor: module.color }} />
                       </div>
-                      <p className="text-xs text-gray-500">{matchingChild.pregnancy_month}/9 meses</p>
+                      <p className="text-xs text-gray-500">Progreso real: {matchingChild.pregnancy_month}/9 meses</p>
                     </div>
                   </div>
                 </div>
@@ -412,7 +491,11 @@ export default function ModuleDetail() {
                         if (triMonths.length === 0) return null;
                         const unlockedCount = triMonths.filter(m => m.month <= matchingChild.pregnancy_month).length;
                         return (
-                          <button key={tri} onClick={() => setActiveTrimester(tri)}
+                          <button key={tri} onClick={() => {
+                            setActiveTrimester(tri);
+                            const firstUnlocked = triMonths.find(m => m.month <= matchingChild.pregnancy_month) || triMonths[0];
+                            setActiveMonth(firstUnlocked.month);
+                          }}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all border-2
                               ${activeTrimester === tri ? 'text-white border-transparent' : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'}`}
                             style={activeTrimester === tri ? { backgroundColor: module.color, borderColor: module.color } : {}}>

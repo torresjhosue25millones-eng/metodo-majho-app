@@ -3,17 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-
-const AGE_ICONS = {
-  'embarazo': '🤰',
-  '0-2': '👶',
-  '3-7': '🌱',
-  '8-12': '✨',
-  '13-18': '🌟',
-};
-
-// Bridges new child age_stage values to the legacy module.age_range values stored in db.json
-const STAGE_MAP = { '3-7': '2-6', '8-12': '6-12', '13-18': '12-17' };
+import { STAGE_MAP } from '../utils/moduleMatch';
 
 export default function Modules() {
   const [modules, setModules] = useState([]);

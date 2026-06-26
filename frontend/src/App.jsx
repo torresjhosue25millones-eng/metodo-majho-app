@@ -5,7 +5,6 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
 import Modules from './pages/Modules';
 import ModuleDetail from './pages/ModuleDetail';
 import Journal from './pages/Journal';
@@ -23,7 +22,6 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/modulos" element={<ProtectedRoute><Modules /></ProtectedRoute>} />
           <Route path="/modulos/:id" element={<ProtectedRoute><ModuleDetail /></ProtectedRoute>} />
           <Route path="/diario" element={<ProtectedRoute><Journal /></ProtectedRoute>} />

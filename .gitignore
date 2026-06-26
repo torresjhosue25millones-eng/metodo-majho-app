@@ -2,7 +2,7 @@ node_modules/
 frontend/node_modules/
 frontend/dist/
 backend/node_modules/
-backend/db.json
 .env
 backend/.env
 frontend/.env
+evidencia-modulo-embarazo/
