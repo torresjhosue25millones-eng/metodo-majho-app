@@ -18,11 +18,37 @@ const CRISIS_AFFIRMATIONS = [
 ];
 
 const RESOURCES = [
-  { icon: '🚨', title: 'Emergencia real', desc: 'Si hay peligro inmediato', number: '112', color: 'border-red-200 bg-red-50 text-red-700' },
-  { icon: '💬', title: 'Crisis emocional', desc: 'Apoyo psicológico urgente', number: '024', color: 'border-plum-200 bg-plum-50 text-plum-700' },
+  { icon: '🚨', title: 'Emergencia real', desc: 'Si hay peligro inmediato', number: '911', href: 'tel:911', color: 'border-red-200 bg-red-50 text-red-700' },
+  { icon: '💬', title: 'Crisis emocional', desc: 'Escríbenos directamente, estamos aquí', number: 'Abrir WhatsApp →', href: 'https://wa.me/50762654830', color: 'border-plum-200 bg-plum-50 text-plum-700' },
   { icon: '🤱', title: 'Lactancia', desc: 'Apoyo urgente en lactancia', number: 'LLLI: 900 100 000', color: 'border-rose-200 bg-rose-50 text-rose-700' },
   { icon: '🏥', title: 'Salud mental materna', desc: 'Depresión y ansiedad materna', number: 'Tu médico', color: 'border-teal-200 bg-teal-50 text-teal-600' },
 ];
+
+function ResourceCard({ r, compact }) {
+  const content = compact ? (
+    <>
+      <p className="font-semibold text-xs">{r.icon} {r.title}</p>
+      <p className="font-bold text-sm mt-1">{r.number}</p>
+    </>
+  ) : (
+    <div className="flex items-start gap-3">
+      <span className="text-2xl">{r.icon}</span>
+      <div>
+        <p className="font-semibold text-sm">{r.title}</p>
+        <p className="text-xs opacity-70 mt-0.5">{r.desc}</p>
+        <p className="font-bold text-sm mt-1">{r.number}</p>
+      </div>
+    </div>
+  );
+  const className = `border-2 ${r.color} rounded-2xl ${compact ? 'p-3' : 'p-4'} block transition-transform ${r.href ? 'hover:scale-[1.02] active:scale-95' : ''}`;
+  return r.href ? (
+    <a href={r.href} target={r.href.startsWith('http') ? '_blank' : undefined} rel={r.href.startsWith('http') ? 'noopener noreferrer' : undefined} className={className}>
+      {content}
+    </a>
+  ) : (
+    <div className={className}>{content}</div>
+  );
+}
 
 function BreathingCircle({ active, phase, count }) {
   const current = BREATHING_PHASES[phase];
@@ -205,18 +231,7 @@ export default function EmergencyView() {
           <div className="mb-6">
             <h2 className="font-serif text-xl text-deep-plum mb-3">Recursos de apoyo permanentes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {RESOURCES.map(r => (
-                <div key={r.title} className={`border-2 ${r.color} rounded-2xl p-4`}>
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">{r.icon}</span>
-                    <div>
-                      <p className="font-semibold text-sm">{r.title}</p>
-                      <p className="text-xs opacity-70 mt-0.5">{r.desc}</p>
-                      <p className="font-bold text-sm mt-1">{r.number}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {RESOURCES.map(r => <ResourceCard key={r.title} r={r} />)}
             </div>
           </div>
 
@@ -301,12 +316,7 @@ export default function EmergencyView() {
               <h2 className="font-serif text-lg text-deep-plum">Si necesitas más apoyo</h2>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {RESOURCES.map(r => (
-                <div key={r.title} className={`border-2 ${r.color} rounded-2xl p-3`}>
-                  <p className="font-semibold text-xs">{r.icon} {r.title}</p>
-                  <p className="font-bold text-sm mt-1">{r.number}</p>
-                </div>
-              ))}
+              {RESOURCES.map(r => <ResourceCard key={r.title} r={r} compact />)}
             </div>
           </div>
 
